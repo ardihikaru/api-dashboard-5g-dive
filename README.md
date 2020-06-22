@@ -45,11 +45,11 @@
     1. Follow step [here](https://www.cockroachlabs.com/docs/stable/secure-a-cluster.html) and [here](https://www.cockroachlabs.com/docs/stable/build-a-python-app-with-cockroachdb-sqlalchemy.html)
     2. Add new user:
         - login: `$ cockroach sql --certs-dir=certs --host=localhost:26257`
-        - Create new database: `CREATE DATABASE flaskapi;`
+        - Create new database: `CREATE DATABASE eagleeyedb;`
         - Create new user: 
-            - Insecure Mode: `CREATE USER flaskuser;`
-            - Secure Mode: `CREATE USER flaskuser WITH PASSWORD 'bismillah';`
-        - Grant user the database access: `GRANT ALL ON DATABASE flaskapi TO flaskuser;`
+            - Insecure Mode: `CREATE USER eagleeyeuser;`
+            - Secure Mode: `CREATE USER eagleeyeuser WITH PASSWORD 'bismillah';`
+        - Grant user the database access: `GRANT ALL ON DATABASE eagleeyedb TO eagleeyeuser;`
     3. Generate cert: `cockroach cert create-client flaskuser --certs-dir=certs --ca-key=my-safe-directory/ca.key`
 
 ## How to use: <TBD>

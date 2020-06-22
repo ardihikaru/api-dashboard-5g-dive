@@ -1,7 +1,7 @@
 from app import app, engine, local_settings, Base
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session
-from app.addons.utils import sql_to_dict_resp, get_json_template
+from app.addons.utils import json_load_str, get_json_template
 from app.addons.database_blacklist.blacklist_helpers import (
     revoke_current_token, extract_identity
 )
@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .user_model import UserModel
 from .user_functions import get_all_users, get_user_by_username, del_user_by_username, store_jwt_data
+import simplejson as json
 
 
 class User(UserModel):
@@ -48,6 +49,9 @@ class User(UserModel):
 
         if "username" not in json_data:
             return False, "Username should not be EMPTY."
+
+        if "email" not in json_data:
+            return False, "Email should not be EMPTY."
 
         if "password" not in json_data:
             return False, "Password should not be EMPTY."
@@ -121,7 +125,7 @@ class User(UserModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.__validate_login_data(var, json_data))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_get_users(self, ses):
+    def trx_get_users(self, ses, get_args=None):
         is_valid, users = get_all_users(ses, User)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
@@ -130,9 +134,23 @@ class User(UserModel):
 
         self.set_resp_data(users)
 
-    def get_users(self):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_users(var))
-        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+    def __extract_get_args(self, get_args):
+        if get_args is not None:
+            if "filter" in get_args:
+                get_args["filter"] = json_load_str(get_args["filter"], "dict")
+            if "range" in get_args:
+                get_args["range"] = json_load_str(get_args["range"], "list")
+            if "sort" in get_args:
+                get_args["sort"] = json_load_str(get_args["sort"], "list")
+
+        return get_args
+
+    def get_users(self, get_args=None):
+        get_args = self.__extract_get_args(get_args)
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_users(var, get_args=get_args))
+        # return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+        return get_json_template(response=self.resp_status, results=self.resp_data, message=self.msg)
+        # return self.resp_data
 
     def trx_get_data_by_username(self, ses, username):
         is_valid, user_data = get_user_by_username(ses, User, username)

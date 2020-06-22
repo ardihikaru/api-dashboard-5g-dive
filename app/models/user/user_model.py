@@ -7,6 +7,7 @@ class UserModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50))
     username = Column(String(50))
+    email = Column(String(100))
     password = Column(String(150))
     create_time = Column(TIMESTAMP, server_default=text('(now())'))
 
@@ -15,6 +16,7 @@ class UserModel(Base):
             'id': self.id,
             'name': self.name,
             'username': self.username,
+            'email': self.email,
             'create_time': self.create_time
         }
         if show_passwd:
@@ -26,6 +28,7 @@ class UserModel(Base):
             UserModel(
                 name=data["name"],
                 username=data["username"],
+                email=data["email"],
                 password=data["password"]
             )
         )

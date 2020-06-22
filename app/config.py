@@ -16,9 +16,9 @@ def get_redis_url():
 
 def get_database_uri(is_secured, passwd):
     if is_secured:
-        return 'cockroachdb://flaskuser:%s@localhost:26257/flaskapi' % passwd
+        return 'cockroachdb://eagleeyeuser:%s@localhost:26257/eagleeyedb' % passwd
     else:
-        return 'cockroachdb://flaskuser@localhost:26257/flaskapi'
+        return 'cockroachdb://eagleeyeuser@localhost:26257/eagleeyedb'
 
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'Vda6r7/3yXBHLDSd89asmN]LWX/,?RT'
