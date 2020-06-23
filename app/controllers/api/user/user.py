@@ -57,12 +57,25 @@ class UserRoute(Resource):
             abort(400, "Input unrecognizable.")
 
     @api.doc(security=None)
-    @api.marshal_with(all_user_data)
+    # @api.marshal_with(all_user_data)
+    @api.marshal_list_with(all_user_data)
+    # @api.marshal_with(all_user_data, as_list=True)
     def get(self):
         '''Get user data'''
         try:
-            resp = User().get_users()
-            return masked_json_template(resp, 200)
+            try:
+                get_args = {
+                    "filter": request.args.get('filter', default="", type=str),
+                    "range": request.args.get('range', default="", type=str),
+                    "sort": request.args.get('sort', default="", type=str)
+                }
+            except:
+                get_args = None
+
+            resp = User().get_users(get_args)
+            print(" --- resp:", resp)
+            # return resp
+            return masked_json_template(resp, 200, no_checking=True)
         except:
             abort(400, "Input unrecognizable.")
 

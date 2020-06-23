@@ -70,8 +70,8 @@ rc_user = StrictRedis(
 )
 
 # encrypt & decrypt
-key = local_settings["android_key"].encode()
-fernet = Fernet(key)
+# key = local_settings["android_key"].encode()
+# fernet = Fernet(key)
 
 authorizations = {
     'Bearer Auth': {
