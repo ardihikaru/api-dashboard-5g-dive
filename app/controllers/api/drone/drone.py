@@ -45,6 +45,16 @@ class DroneRoute(Resource):
         except:
             abort(400, "Input unrecognizable.")
 
+    @api.doc(security=None)
+    @api.marshal_with(delete_drone_results)
+    def delete(self):
+        '''Delete all existing Drones'''
+        try:
+            resp = Drone().delete_all_drones()
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
 @api.route('/<drone_id>')
 # @api.hide
 @api.response(404, 'Json Input should be provided.')

@@ -48,9 +48,9 @@ class NodeRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(delete_node_results)
     def delete(self):
-        '''Delete all existing Frames'''
+        '''Delete all existing Nodes'''
         try:
-            resp = Node().delete_all_frames()
+            resp = Node().delete_all_nodes()
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")

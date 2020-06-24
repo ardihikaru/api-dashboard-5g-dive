@@ -117,6 +117,6 @@ class Node(NodeModel):
 
         self.set_resp_data(frame_data)
 
-    def delete_all_frames(self):
+    def delete_all_nodes(self):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)

@@ -3,7 +3,7 @@ from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .drone_model import DroneModel
-from .drone_functions import get_all_drones, get_drone_by_drone_id, del_drone_by_drone_id
+from .drone_functions import get_all_drones, get_drone_by_drone_id, del_drone_by_drone_id, del_all_drones
 import simplejson as json
 
 
@@ -104,3 +104,20 @@ class Drone(DroneModel):
     def delete_data_by_drone_id(self, drone_id):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_drone_id(var, drone_id))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_del_all_data(self, ses):
+        is_valid, drone_data, msg = del_all_drones(ses, Drone)
+        if drone_data is None:
+            is_valid = False
+            msg = "drone not found"
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Deleting all drones success.")
+
+        self.set_resp_data(drone_data)
+
+    def delete_all_drones(self):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+

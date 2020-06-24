@@ -42,3 +42,18 @@ def del_drone_by_drone_id(ses, drone_model, drone_id):
         return True, dict_drone, None
     else:
         return False, None, None
+
+
+def del_all_drones(ses, drone_model):
+    try:
+        data = ses.query(drone_model).all()
+        ses.query(drone_model).delete()
+    except NoResultFound:
+        return False, None, "node not found"
+
+    dict_drone = sqlresp_to_dict(data)
+
+    if len(dict_drone) > 0:
+        return True, dict_drone, None
+    else:
+        return False, None, None
