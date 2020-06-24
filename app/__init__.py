@@ -5,7 +5,7 @@ from .logger import err_logger, info_logger, any_logger
 from flask_jwt_extended import JWTManager
 from flask_restplus import Api
 from flask_cors import CORS
-from cryptography.fernet import Fernet
+# from cryptography.fernet import Fernet
 from werkzeug.contrib.fixers import ProxyFix
 from .initialization import init_folders, is_localhost
 from concurrent.futures import ThreadPoolExecutor
@@ -82,7 +82,7 @@ authorizations = {
 }
 bp_api_v2 = Blueprint('api', __name__, url_prefix='/api')
 
-api = Api(app, version='1.0', title='Flask API with Swagger UI',
+api = Api(app, version='1.0', title='EagleEYE RestfulAPI with Swagger UI',
           description='Web Service (APIs) GUI-based Documentation',
           doc='/api/doc/',
           # doc=False,
@@ -90,7 +90,3 @@ api = Api(app, version='1.0', title='Flask API with Swagger UI',
           security='Bearer Auth',
           authorizations=authorizations
           )
-
-# migrate = Migrate(app, db)  # https://flask-migrate.readthedocs.io/en/latest/
-# manager = Manager(app)
-# manager.add_command('db', MigrateCommand)

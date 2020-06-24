@@ -30,10 +30,3 @@ all_user_data = api.model('all_user_data', {
     'message': fields.String,
     'total': fields.Integer,
 })
-
-# all_user_data = api.model('all_user_data', {
-#     'id': fields.String,
-#     'name': fields.String,
-#     'username': fields.String,
-#     'email': fields.String,
-# })
