@@ -16,9 +16,9 @@ def get_all_frames(ses, frame_model):
         return False, None
 
 
-def get_frame_by_frame_id(ses, frame_model, frame_id):
+def get_frame_by_frame_name(ses, frame_model, frame_name):
     try:
-        data = ses.query(frame_model).filter_by(frame_id=frame_id).one()
+        data = ses.query(frame_model).filter_by(frame_name=frame_name).one()
     except NoResultFound:
         return False, None
     dict_frame = data.to_dict()
@@ -29,10 +29,10 @@ def get_frame_by_frame_id(ses, frame_model, frame_id):
         return False, None
 
 
-def del_frame_by_frame_id(ses, frame_model, frame_id):
+def del_frame_by_frame_name(ses, frame_model, frame_name):
     try:
-        data = ses.query(frame_model).filter_by(frame_id=frame_id).one()
-        ses.query(frame_model).filter_by(frame_id=frame_id).delete()
+        data = ses.query(frame_model).filter_by(frame_name=frame_name).one()
+        ses.query(frame_model).filter_by(frame_name=frame_name).delete()
     except NoResultFound:
         return False, None, "frame not found"
 

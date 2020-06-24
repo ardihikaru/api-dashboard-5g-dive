@@ -45,17 +45,17 @@ class FrameRoute(Resource):
         except:
             abort(400, "Input unrecognizable.")
 
-@api.route('/<frame_id>')
+@api.route('/<frame_name>')  # frame_<frame_id>_<drone_id>_<node_id>
 # @api.hide
 @api.response(404, 'Json Input should be provided.')
 @api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
 class FrameFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_frame_results)
-    def get(self, frame_id):
+    def get(self, frame_name):
         '''Get Frame data by Frame ID'''
         try:
-            resp = Frame().get_data_by_frame_id(frame_id)
+            resp = Frame().get_data_by_frame_name(frame_name)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")
@@ -65,7 +65,7 @@ class FrameFindRoute(Resource):
     def delete(self, frame_id):
         '''Delete Frame data by Frame ID'''
         try:
-            resp = Frame().delete_data_by_frame_id(frame_id)
+            resp = Frame().delete_data_by_frame_name(frame_name)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")

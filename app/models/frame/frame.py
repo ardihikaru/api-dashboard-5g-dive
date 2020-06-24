@@ -5,7 +5,7 @@ from cockroachdb.sqlalchemy import run_transaction
 from .frame_model import FrameModel
 from ..drone.drone_model import DroneModel
 from ..node.node_model import NodeModel
-from .frame_functions import get_all_frames, get_frame_by_frame_id, del_frame_by_frame_id
+from .frame_functions import get_all_frames, get_frame_by_frame_name, del_frame_by_frame_name
 from ..drone.drone_functions import get_drone_by_drone_id
 from ..node.node_functions import get_node_by_node_id
 import simplejson as json
@@ -42,9 +42,9 @@ class Frame(FrameModel):
             return False, "Frame Name should not be EMPTY."
 
         if is_input_valid:
-            is_fid_exist, _ = get_frame_by_frame_id(ses, Frame, json_data["frame_id"])
+            is_fid_exist, _ = get_frame_by_frame_name(ses, Frame, json_data["frame_name"])
             if is_fid_exist:
-                return False, "Frame ID `%s` exist." % json_data["frame_id"]
+                return False, "Frame Name `%s` exist." % json_data["frame_name"]
 
             is_did_exist, _ = get_drone_by_drone_id(ses, DroneModel, json_data["drone_id"])
             if not is_did_exist:
@@ -97,8 +97,8 @@ class Frame(FrameModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_frames(var, get_args=get_args))
         return get_json_template(response=self.resp_status, results=self.resp_data, message=self.msg)
 
-    def trx_get_data_by_frame_id(self, ses, frame_id):
-        is_valid, frame_data = get_frame_by_frame_id(ses, Frame, frame_id)
+    def trx_get_data_by_frame_name(self, ses, frame_name):
+        is_valid, frame_data = get_frame_by_frame_name(ses, Frame, frame_name)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:
@@ -106,12 +106,12 @@ class Frame(FrameModel):
 
         self.set_resp_data(frame_data)
 
-    def get_data_by_frame_id(self, frame_id):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_frame_id(var, frame_id))
+    def get_data_by_frame_name(self, frame_name):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_frame_name(var, frame_name))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_del_data_by_frame_id(self, ses, frame_id):
-        is_valid, frame_data, msg = del_frame_by_frame_id(ses, Frame, frame_id)
+    def trx_del_data_by_frame_name(self, ses, frame_name):
+        is_valid, frame_data, msg = del_frame_by_frame_name(ses, Frame, frame_name)
         self.set_resp_status(is_valid)
         self.set_msg(msg)
         if is_valid:
@@ -119,6 +119,6 @@ class Frame(FrameModel):
 
         self.set_resp_data(frame_data)
 
-    def delete_data_by_frame_id(self, frame_id):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_frame_id(var, frame_id))
+    def delete_data_by_frame_id(self, frame_name):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_frame_name(var, frame_name))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
