@@ -47,7 +47,7 @@ def del_frame_by_frame_name(ses, frame_model, frame_name):
 def del_all_frames(ses, frame_model):
     try:
         data = ses.query(frame_model).all()
-        ses.query(frame_model).filter_by().delete()
+        ses.query(frame_model).delete()
     except NoResultFound:
         return False, None, "frame not found"
 

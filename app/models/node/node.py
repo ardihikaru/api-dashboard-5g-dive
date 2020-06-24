@@ -3,7 +3,7 @@ from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .node_model import NodeModel
-from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id
+from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes
 import simplejson as json
 
 
@@ -103,4 +103,20 @@ class Node(NodeModel):
 
     def delete_data_by_node_id(self, node_id):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_node_id(var, node_id))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_del_all_data(self, ses):
+        is_valid, frame_data, msg = del_all_nodes(ses, Node)
+        if frame_data is None:
+            is_valid = False
+            msg = "node not found"
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Deleting all nodes success.")
+
+        self.set_resp_data(frame_data)
+
+    def delete_all_frames(self):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)

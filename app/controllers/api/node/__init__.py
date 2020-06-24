@@ -25,3 +25,8 @@ all_node_data = api.model('all_node_data', {
     'message': fields.String,
     'total': fields.Integer,
 })
+
+delete_node_results = api.model('delete_node_results', {
+    'response': fields.Boolean,
+    'message': fields.String,
+})

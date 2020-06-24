@@ -45,6 +45,16 @@ class NodeRoute(Resource):
         except:
             abort(400, "Input unrecognizable.")
 
+    @api.doc(security=None)
+    @api.marshal_with(delete_node_results)
+    def delete(self):
+        '''Delete all existing Frames'''
+        try:
+            resp = Node().delete_all_frames()
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
 @api.route('/<node_id>')
 # @api.hide
 @api.response(404, 'Json Input should be provided.')

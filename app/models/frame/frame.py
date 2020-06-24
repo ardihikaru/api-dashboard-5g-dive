@@ -131,7 +131,7 @@ class Frame(FrameModel):
         self.set_resp_status(is_valid)
         self.set_msg(msg)
         if is_valid:
-            self.set_msg("Deleting data success.")
+            self.set_msg("Deleting all frames success.")
 
         self.set_resp_data(frame_data)
 
