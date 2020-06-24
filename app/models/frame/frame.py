@@ -2,12 +2,16 @@ from app import app, engine, local_settings
 from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
-from .node_model import NodeModel
-from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes
+from .frame_model import FrameModel
+from ..drone.drone_model import DroneModel
+from ..node.node_model import NodeModel
+from .frame_functions import get_all_frames, get_frame_by_frame_name, del_frame_by_frame_name, del_all_frames
+from ..drone.drone_functions import get_drone_by_drone_id
+from ..node.node_functions import get_node_by_node_id
 import simplejson as json
 
 
-class Node(NodeModel):
+class Frame(FrameModel):
     def __init__(self):
         self.resp_status = None
         self.resp_data = None
@@ -25,16 +29,30 @@ class Node(NodeModel):
 
     def __validate_register_data(self, ses, json_data):
         is_input_valid = True
+        if "frame_id" not in json_data:
+            return False, "Frame ID should not be EMPTY."
+
+        if "drone_id" not in json_data:
+            return False, "Drone ID should not be EMPTY."
+
         if "node_id" not in json_data:
             return False, "Node ID should not be EMPTY."
 
-        if "node_name" not in json_data:
-            return False, "Node Name should not be EMPTY."
+        if "frame_name" not in json_data:
+            return False, "Frame Name should not be EMPTY."
 
         if is_input_valid:
-            is_id_exist, _ = get_node_by_node_id(ses, Node, json_data["node_id"])
-            if is_id_exist:
-                return False, "Node ID `%s` exist." % json_data["node_id"]
+            is_fid_exist, _ = get_frame_by_frame_name(ses, Frame, json_data["frame_name"])
+            if is_fid_exist:
+                return False, "Frame Name `%s` exist." % json_data["frame_name"]
+
+            is_did_exist, _ = get_drone_by_drone_id(ses, DroneModel, json_data["drone_id"])
+            if not is_did_exist:
+                return False, "Unable to find Drone ID `%s`." % json_data["drone_id"]
+
+            is_nid_exist, _ = get_node_by_node_id(ses, NodeModel, json_data["node_id"])
+            if not is_nid_exist:
+                return False, "Unable to find Node ID `%s`." % json_data["node_id"]
 
         return True, None
 
@@ -44,7 +62,7 @@ class Node(NodeModel):
         self.set_msg(msg)
 
         if is_valid:
-            msg = "Registering a new Node device succeed."
+            msg = "Registering a new Frame device succeed."
             self.insert(ses, json_data)
             self.set_msg(msg)
 
@@ -54,14 +72,14 @@ class Node(NodeModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_register(var, json_data))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_get_nodes(self, ses, get_args=None):
-        is_valid, nodes = get_all_nodes(ses, Node)
+    def trx_get_frames(self, ses, get_args=None):
+        is_valid, frames = get_all_frames(ses, Frame)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:
             self.set_msg("Collecting data success.")
 
-        self.set_resp_data(nodes)
+        self.set_resp_data(frames)
 
     def __extract_get_args(self, get_args):
         if get_args is not None:
@@ -74,49 +92,50 @@ class Node(NodeModel):
 
         return get_args
 
-    def get_nodes(self, get_args=None):
+    def get_frames(self, get_args=None):
         get_args = self.__extract_get_args(get_args)
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_nodes(var, get_args=get_args))
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_frames(var, get_args=get_args))
         return get_json_template(response=self.resp_status, results=self.resp_data, message=self.msg)
 
-    def trx_get_data_by_node_id(self, ses, node_id):
-        is_valid, node_data = get_node_by_node_id(ses, Node, node_id)
+    def trx_get_data_by_frame_name(self, ses, frame_name):
+        is_valid, frame_data = get_frame_by_frame_name(ses, Frame, frame_name)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:
             self.set_msg("Collecting data success.")
 
-        self.set_resp_data(node_data)
+        self.set_resp_data(frame_data)
 
-    def get_data_by_node_id(self, node_id):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_node_id(var, node_id))
+    def get_data_by_frame_name(self, frame_name):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_frame_name(var, frame_name))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_del_data_by_node_id(self, ses, node_id):
-        is_valid, node_data, msg = del_node_by_node_id(ses, Node, node_id)
+    def trx_del_data_by_frame_name(self, ses, frame_name):
+        is_valid, frame_data, msg = del_frame_by_frame_name(ses, Frame, frame_name)
         self.set_resp_status(is_valid)
         self.set_msg(msg)
         if is_valid:
             self.set_msg("Deleting data success.")
 
-        self.set_resp_data(node_data)
+        self.set_resp_data(frame_data)
 
-    def delete_data_by_node_id(self, node_id):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_node_id(var, node_id))
+    def delete_data_by_frame_name(self, frame_name):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_frame_name(var, frame_name))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_del_all_data(self, ses):
-        is_valid, frame_data, msg = del_all_nodes(ses, Node)
+        is_valid, frame_data, msg = del_all_frames(ses, Frame)
         if frame_data is None:
             is_valid = False
-            msg = "node not found"
+            msg = "frame not found"
         self.set_resp_status(is_valid)
         self.set_msg(msg)
         if is_valid:
-            self.set_msg("Deleting all nodes success.")
+            self.set_msg("Deleting all frames success.")
 
         self.set_resp_data(frame_data)
 
-    def delete_all_nodes(self):
+    def delete_all_frames(self):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+

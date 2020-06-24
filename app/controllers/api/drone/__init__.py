@@ -25,3 +25,8 @@ all_drone_data = api.model('all_drone_data', {
     'message': fields.String,
     'total': fields.Integer,
 })
+
+delete_drone_results = api.model('delete_drone_results', {
+    'response': fields.Boolean,
+    'message': fields.String,
+})

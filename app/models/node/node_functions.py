@@ -42,3 +42,18 @@ def del_node_by_node_id(ses, node_model, node_id):
         return True, dict_node, None
     else:
         return False, None, None
+
+
+def del_all_nodes(ses, node_model):
+    try:
+        data = ses.query(node_model).all()
+        ses.query(node_model).delete()
+    except NoResultFound:
+        return False, None, "node not found"
+
+    dict_node = sqlresp_to_dict(data)
+
+    if len(dict_node) > 0:
+        return True, dict_node, None
+    else:
+        return False, None, None
