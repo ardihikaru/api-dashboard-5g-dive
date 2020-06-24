@@ -16,7 +16,7 @@ def get_all_drones(ses, drone_model):
         return False, None
 
 
-def get_drone_by_drone_id(ses, drone_model, drone_id, show_passwd=False):
+def get_drone_by_drone_id(ses, drone_model, drone_id):
     try:
         data = ses.query(drone_model).filter_by(drone_id=drone_id).one()
     except NoResultFound:
