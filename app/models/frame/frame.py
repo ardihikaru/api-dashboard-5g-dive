@@ -5,7 +5,7 @@ from cockroachdb.sqlalchemy import run_transaction
 from .frame_model import FrameModel
 from ..drone.drone_model import DroneModel
 from ..node.node_model import NodeModel
-from .frame_functions import get_all_frames, get_frame_by_frame_name, del_frame_by_frame_name
+from .frame_functions import get_all_frames, get_frame_by_frame_name, del_frame_by_frame_name, del_all_frames
 from ..drone.drone_functions import get_drone_by_drone_id
 from ..node.node_functions import get_node_by_node_id
 import simplejson as json
@@ -119,6 +119,23 @@ class Frame(FrameModel):
 
         self.set_resp_data(frame_data)
 
-    def delete_data_by_frame_id(self, frame_name):
+    def delete_data_by_frame_name(self, frame_name):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_frame_name(var, frame_name))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_del_all_data(self, ses):
+        is_valid, frame_data, msg = del_all_frames(ses, Frame)
+        if frame_data is None:
+            is_valid = False
+            msg = "frame not found"
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Deleting data success.")
+
+        self.set_resp_data(frame_data)
+
+    def delete_all_frames(self):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+

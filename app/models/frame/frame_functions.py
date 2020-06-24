@@ -42,3 +42,18 @@ def del_frame_by_frame_name(ses, frame_model, frame_name):
         return True, dict_frame, None
     else:
         return False, None, None
+
+
+def del_all_frames(ses, frame_model):
+    try:
+        data = ses.query(frame_model).all()
+        ses.query(frame_model).filter_by().delete()
+    except NoResultFound:
+        return False, None, "frame not found"
+
+    dict_frame = sqlresp_to_dict(data)
+
+    if len(dict_frame) > 0:
+        return True, dict_frame, None
+    else:
+        return False, None, None

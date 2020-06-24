@@ -23,6 +23,16 @@ class FrameRoute(Resource):
             abort(400, "Input unrecognizable.")
 
     @api.doc(security=None)
+    @api.marshal_with(delete_frame_results)
+    def delete(self):
+        '''Delete all existing Frames'''
+        try:
+            resp = Frame().delete_all_frames()
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+    @api.doc(security=None)
     @api.marshal_list_with(all_frame_data)
     def get(self):
         '''Get Frame data'''
@@ -53,7 +63,7 @@ class FrameFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_frame_results)
     def get(self, frame_name):
-        '''Get Frame data by Frame ID'''
+        '''Get Frame data by Frame Name'''
         try:
             resp = Frame().get_data_by_frame_name(frame_name)
             return masked_json_template(resp, 200)
@@ -62,8 +72,8 @@ class FrameFindRoute(Resource):
 
     @api.doc(security=None)
     @api.marshal_with(register_frame_results)
-    def delete(self, frame_id):
-        '''Delete Frame data by Frame ID'''
+    def delete(self, frame_name):
+        '''Delete Frame data by Frame Name'''
         try:
             resp = Frame().delete_data_by_frame_name(frame_name)
             return masked_json_template(resp, 200)

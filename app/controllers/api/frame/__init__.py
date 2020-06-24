@@ -29,3 +29,8 @@ all_frame_data = api.model('all_frame_data', {
     'message': fields.String,
     'total': fields.Integer,
 })
+
+delete_frame_results = api.model('delete_frame_results', {
+    'response': fields.Boolean,
+    'message': fields.String,
+})
