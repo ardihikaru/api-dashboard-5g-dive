@@ -1,29 +1,52 @@
-# Flask-API
+# EagleEYE Web Service APIs
+This Web Service APIs was built based on my own public repository, [Flask-API](https://github.com/ardihikaru/flask-api), 
+is using RestfulAPI as the communication protocol between the Server and the connected Client(s).
+
 
 ## TO DO LIST
 
-- [x] Base code: Flask App + Swagger UI
-- [x] How to install & Run Cockroachdb (CRDB)
-- [x] How to install & Run RedisDB
-- [x] Enable auth login and logout
-    - [x] Enable connection with RedisDB for storing JWT information
-- [x] Integrate with CRDB, e.g., CRUD of `User Model` with CRDB
-    - [x] Sample `Create` new user
-    - [x] Sample `Read` user all
-    - [x] Sample `Read` user by username
-    - [x] Sample `Delete` user by username
+- [x] Base code: [Flask App + Swagger UI](https://github.com/ardihikaru/flask-api)
+- [x] APIs (**FYI: Temporary disabled the security access: No `access_token` required**)
+    - [x] Auth
+        - [x] `POST /auth/login`: Login and receive `access_token`
+        - [x] `GET /auth/logout`: Logout and delete active `access_token`
+    - [x] Users
+        - [x] `POST /users`: Register a new user 
+        - [x] `GET /users`: Get all users
+        - [x] `GET /users/<username>`: Get a specific user
+        - [x] `DELETE /users/<username>`: Delete a specific user
+    - [x] Drones
+        - [x] `POST /drones`: Register a new drone 
+        - [x] `GET /drones`: Get all drones
+        - [x] `DELETE /drones`: Delete all drones
+        - [x] `DELETE /drones/<drone_id>`: Delete a specific drone
+    - [x] Worker Nodes
+        - [x] `POST /workers`: Register a new worker node
+        - [x] `GET /workers`: Get all worker nodes
+        - [x] `DELETE /workers`: Delete all worker nodes
+        - [ ] `DELETE /workers/<worker_id>`: Delete a specific worker node
+    - [x] Frames
+        - [x] `POST /frames`: Insert a new image frame
+        - [x] `GET /frames`: Get all image frames
+        - [x] `DELETE /frames`: Delete all image frames
+    - [x] CPU utilization
+        - [x] `POST /util/cpu/cores`: Add current (timestamp) CPU Cores utilization (in percent)
+        - [x] `GET /util/cpu/cores/<num_records>`: Get last N records of CPU Cores utilization (in percent)
+        - [x] `POST /util/cpu/rams`: Add current (timestamp) CPU RAMs utilization (in GB)
+        - [x] `GET /util/cpu/rams/<num_records>`: Get last N records of CPU RAMs utilization (in GB)
+    - [x] GPU utilization
+        - [x] `POST /util/gpu/rams`: Add current (timestamp) GPU RAMs utilization (in GB)
+        - [x] `GET /util/gpu/rams/<num_records>`: Get last N records of GPU RAMs utilization (in GB)
 - [x] Complete documentation
 
-## Included components
-1. Python Flask
-2. Swagger UI
-3. Redis Database
-4. Cockroach Database
-
-## Requirements
-1. Python 3, https://www.python.org/download/releases/3.0/
-2. Python Flask Web Server, http://flask.pocoo.org
-3. Redis Key-Value Database, https://redis.io
+## Technology used in this projects (Requirements)
+1. [Python 3](https://www.python.org/download/releases/3.0/)
+2. [Python Flask](https://flask.palletsprojects.com/en/1.1.x/)
+3. [Swagger UI](https://swagger.io/tools/swagger-ui/)
+4. [Redis Database](https://redis.io/)
+5. [Cockroach Database](https://www.cockroachlabs.com/)
+6. [Elasticsearch Database](https://www.elastic.co/elasticsearch/)
+7. [Kibana](https://www.elastic.co/kibana)
 
 ## Installation
 1. Python library 
@@ -39,18 +62,22 @@
     5. Test insert data into RedisDB: `. test.sh`
 3. Install Coachroach Database
     - [MAC OS](https://kb.objectrocket.com/cockroachdb/how-to-install-cockroachdb-on-mac-os-x-307)
-    - WINDOWS
-    - LINUX
+    - [WINDOWS](https://www.cockroachlabs.com/docs/stable/start-a-local-cluster.html)
+    - [LINUX](https://www.cockroachlabs.com/docs/stable/start-a-local-cluster.html)
 4. Configure CockroachDB:
     1. Follow step [here](https://www.cockroachlabs.com/docs/stable/secure-a-cluster.html) and [here](https://www.cockroachlabs.com/docs/stable/build-a-python-app-with-cockroachdb-sqlalchemy.html)
     2. Add new user:
         - login: `$ cockroach sql --certs-dir=certs --host=localhost:26257`
-        - Create new database: `CREATE DATABASE flaskapi;`
+        - Create new database: `CREATE DATABASE eagleeyedb;`
         - Create new user: 
-            - Insecure Mode: `CREATE USER flaskuser;`
-            - Secure Mode: `CREATE USER flaskuser WITH PASSWORD 'bismillah';`
-        - Grant user the database access: `GRANT ALL ON DATABASE flaskapi TO flaskuser;`
-    3. Generate cert: `cockroach cert create-client flaskuser --certs-dir=certs --ca-key=my-safe-directory/ca.key`
+            - Insecure Mode: `CREATE USER eagleeyeuser;`
+            - Secure Mode: `CREATE USER eagleeyeuser WITH PASSWORD 'bismillah';`
+        - Grant user the database access: `GRANT ALL ON DATABASE eagleeyedb TO eagleeyeuser;`
+    3. Generate cert (Secure mode **ONLY**): `cockroach cert create-client flaskuser --certs-dir=certs --ca-key=my-safe-directory/ca.key`
+5. Install and Configure Elasticsearch Database:
+    - [Follow steps here](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html)
+6. Install and Configure Kibana:
+    - [Follow steps here](https://www.elastic.co/guide/en/kibana/current/install.html)
 
 ## How to use: <TBD>
 1. Run RedisDB
@@ -97,18 +124,38 @@
 
 ## Database: Redis Database
 RedisDB used only to store JWT-related information
-        
+         
 ## Accessible APIs 
-* AUTH
-    * `POST /api/auth/login`
-    * `GET /api/auth/login`
-    * `GET /api/auth/logout`
-    * `GET /api/refresh`
-* USER
-    * `GET /api/user`
-    * `POST /api/user`
-    * `GET /api/user/<username>` 
-    * `DELETE /api/user/<username>` 
+* Auth
+    - `POST /auth/login`: Login and receive `access_token`
+    - `GET /auth/logout`: Logout and delete active `access_token`
+* Users
+    - `POST /users`: Register a new user 
+    - `GET /users`: Get all users
+    - `GET /users/<username>`: Get a specific user
+    - `DELETE /users/<username>`: Delete a specific user
+* Drones
+    - `POST /drones`: Register a new drone 
+    - `GET /drones`: Get all drones
+    - `DELETE /drones`: Delete all drones
+    - `DELETE /drones/<drone_id>`: Delete a specific drone
+* Worker Nodes
+    - `POST /workers`: Register a new worker node
+    - `GET /workers`: Get all worker nodes
+    - `DELETE /workers`: Delete all worker nodes
+    - [ ] `DELETE /workers/<worker_id>`: Delete a specific worker node
+* Frames
+    - `POST /frames`: Insert a new image frame
+    - `GET /frames`: Get all image frames
+    - `DELETE /frames`: Delete all image frames
+* CPU utilization
+    - `POST /util/cpu/cores`: Add current (timestamp) CPU Cores utilization (in percent)
+    - `GET /util/cpu/cores/<num_records>`: Get last N records of CPU Cores utilization (in percent)
+    - `POST /util/cpu/rams`: Add current (timestamp) CPU RAMs utilization (in GB)
+    - `GET /util/cpu/rams/<num_records>`: Get last N records of CPU RAMs utilization (in GB)
+* GPU utilization
+    - `POST /util/gpu/rams`: Add current (timestamp) GPU RAMs utilization (in GB)
+    - `GET /util/gpu/rams/<num_records>`: Get last N records of GPU RAMs utilization (in GB)
 
 ### Response
 
@@ -138,41 +185,11 @@ NB: More detail information regarding API Documentation please refer to [Here](h
 Self-Maintained. If there any issue, please do not hesitate to contact me. 
 
 ## Contributors
-1. Muhammad Febrian Ardiansyah, https://gitlab.com/ardihikaru
+1. Muhammad Febrian Ardiansyah, https://github.com/ardihikaru
 
 ## Extra resources
 1. **Thread** with `concurrent.futures`; https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ThreadPoolExecutor
 2. **Flask Restplus** in **HTTPS** ; https://stackoverflow.com/questions/47508257/serving-flask-restplus-on-https-server
-3. **Monkey patch** : https://github.com/noirbizarre/flask-restplus/issues/54
-4. About Redis (Tested on **Ubuntu**):
-    * Restart Redis: `sudo service redis-server restart`
-    * Redis Cli: `redis-cli`
-    * Redis Conf file: `sudo vi /etc/redis/redis.conf`
-    * Setting up password in Redis.
-        * Open Conf file in `sudo vi /etc/redis/redis.conf`
-        * Uncomment and Edit this line `requirepass <password>`
-        * Example usage: `requirepass bismillah`
-    * Flask-Redis Doc: 
-        * Flask Redis. https://github.com/underyx/flask-redis
-        * Redis Expire. https://redis.io/commands/expire
-        * Delete Keys. https://www.shellhacks.com/redis-delete-all-keys-redis-cli/
-            * `redis-cli FLUSHDB`
-            * `redis-cli -n DB_NUMBER FLUSHDB`
-            * `redis-cli -n DB_NUMBER FLUSHDB ASYNC`
-            * `redis-cli FLUSHDB`
-            * `redis-cli FLUSHALL`
-            * `redis-cli FLUSHALL ASYNC`
-         * Snippet Code in OpenSuse.
-            * `systemctl daemon-reload`
-            * `sudo redis-server /etc/redis/default.conf`
-            * `sudo vi /etc/redis/default.conf`
-            * `redis-cli`
-            * `systemctl start redis@default`
-            * `systemctl restart redis.target`
-            * `systemctl enable redis@default`
-            * `sudo vi /etc/systemd/system/redis@default.service.d/limits.conf`
-    * Common Issues in Redis.
-        * Decode Redis Response: https://stackoverflow.com/questions/33338801/how-to-decode-redis-responses-in-flask/33338802
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
