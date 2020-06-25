@@ -59,7 +59,7 @@ class GpuRamRoute(Resource):
 # @api.hide
 @api.response(404, 'Json Input should be provided.')
 @api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
-class FrameFindRoute(Resource):
+class GpuFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_gpu_ram_results)
     def get(self):
