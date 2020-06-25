@@ -3,7 +3,7 @@ from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .cpu_core_model import CpuCoreModel
-from .cpu_core_functions import get_all_data, del_all_data
+from .cpu_core_functions import get_all_data, del_all_data, get_latest_data
 import simplejson as json
 
 
@@ -87,4 +87,20 @@ class CpuCore(CpuCoreModel):
 
     def delete_all_data(self):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_get_latest(self, ses):
+        is_valid, db_data, msg = get_latest_data(ses, CpuCore)
+        if db_data is None:
+            is_valid = False
+            msg = "CPU Core data not found"
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Latest data has been collected.")
+
+        self.set_resp_data(db_data)
+
+    def get_latest(self):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_latest(var))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)

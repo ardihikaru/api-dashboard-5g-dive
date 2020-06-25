@@ -59,7 +59,7 @@ class CpuRamRoute(Resource):
 # @api.hide
 @api.response(404, 'Json Input should be provided.')
 @api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
-class CpuFindRoute(Resource):
+class CpuRamFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_cpu_ram_results)
     def get(self):
