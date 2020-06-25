@@ -37,7 +37,7 @@ is using RestfulAPI as the communication protocol between the Server and the con
     - [x] GPU utilization
         - [x] `POST /util/gpu/rams`: Add current (timestamp) GPU RAMs utilization (in GB)
         - [x] `GET /util/gpu/rams/<num_records>`: Get last N records of GPU RAMs utilization (in GB)
-- [ ] Complete documentation
+- [x] Complete documentation
 
 ## Technology used in this projects (Requirements)
 1. [Python 3](https://www.python.org/download/releases/3.0/)
