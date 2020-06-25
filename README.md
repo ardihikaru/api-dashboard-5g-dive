@@ -6,38 +6,38 @@ is using RestfulAPI as the communication protocol between the Server and the con
 ## TO DO LIST
 
 - [x] Base code: [Flask App + Swagger UI](https://github.com/ardihikaru/flask-api)
-- [ ] APIs (**FYI: Temporary disabled the security access: No `access_token` required**)
+- [x] APIs (**FYI: Temporary disabled the security access: No `access_token` required**)
     - [x] Auth
         - [x] `POST /auth/login`: Login and receive `access_token`
         - [x] `GET /auth/logout`: Logout and delete active `access_token`
-    - [ ] Users
+    - [x] Users
         - [x] `POST /users`: Register a new user 
         - [x] `GET /users`: Get all users
         - [x] `GET /users/<username>`: Get a specific user
         - [x] `DELETE /users/<username>`: Delete a specific user
-    - [ ] Drones
-        - [ ] `POST /drones`: Register a new drone 
-        - [ ] `GET /drones`: Get all drones
-        - [ ] `DELETE /drones`: Delete all drones
-        - [ ] `DELETE /drones/<drone_id>`: Delete a specific drone
-    - [ ] Worker Nodes
-        - [ ] `POST /workers`: Register a new worker node
-        - [ ] `GET /workers`: Get all worker nodes
-        - [ ] `DELETE /workers`: Delete all worker nodes
+    - [x] Drones
+        - [x] `POST /drones`: Register a new drone 
+        - [x] `GET /drones`: Get all drones
+        - [x] `DELETE /drones`: Delete all drones
+        - [x] `DELETE /drones/<drone_id>`: Delete a specific drone
+    - [x] Worker Nodes
+        - [x] `POST /workers`: Register a new worker node
+        - [x] `GET /workers`: Get all worker nodes
+        - [x] `DELETE /workers`: Delete all worker nodes
         - [ ] `DELETE /workers/<worker_id>`: Delete a specific worker node
-    - [ ] Frames
-        - [ ] `POST /frames`: Insert a new image frame
-        - [ ] `GET /frames`: Get all image frames
-        - [ ] `DELETE /frames`: Delete all image frames
-    - [ ] CPU utilization
-        - [ ] `POST /util/cpu/cores`: Add current (timestamp) CPU Cores utilization (in percent)
-        - [ ] `GET /util/cpu/cores/<num_records>`: Get last N records of CPU Cores utilization (in percent)
-        - [ ] `POST /util/cpu/rams`: Add current (timestamp) CPU RAMs utilization (in GB)
-        - [ ] `GET /util/cpu/rams/<num_records>`: Get last N records of CPU RAMs utilization (in GB)
-    - [ ] GPU utilization
-        - [ ] `POST /util/gpu/rams`: Add current (timestamp) GPU RAMs utilization (in GB)
-        - [ ] `GET /util/gpu/rams/<num_records>`: Get last N records of GPU RAMs utilization (in GB)
-- [ ] Complete documentation
+    - [x] Frames
+        - [x] `POST /frames`: Insert a new image frame
+        - [x] `GET /frames`: Get all image frames
+        - [x] `DELETE /frames`: Delete all image frames
+    - [x] CPU utilization
+        - [x] `POST /util/cpu/cores`: Add current (timestamp) CPU Cores utilization (in percent)
+        - [x] `GET /util/cpu/cores/<num_records>`: Get last N records of CPU Cores utilization (in percent)
+        - [x] `POST /util/cpu/rams`: Add current (timestamp) CPU RAMs utilization (in GB)
+        - [x] `GET /util/cpu/rams/<num_records>`: Get last N records of CPU RAMs utilization (in GB)
+    - [x] GPU utilization
+        - [x] `POST /util/gpu/rams`: Add current (timestamp) GPU RAMs utilization (in GB)
+        - [x] `GET /util/gpu/rams/<num_records>`: Get last N records of GPU RAMs utilization (in GB)
+- [x] Complete documentation
 
 ## Technology used in this projects (Requirements)
 1. [Python 3](https://www.python.org/download/releases/3.0/)
@@ -124,16 +124,38 @@ is using RestfulAPI as the communication protocol between the Server and the con
 
 ## Database: Redis Database
 RedisDB used only to store JWT-related information
-        
+         
 ## Accessible APIs 
-* AUTH
-    * `POST /api/auth/login`
-    * `GET /api/auth/logout`
-* USER
-    * `GET /api/user`
-    * `POST /api/user`
-    * `GET /api/user/<username>` 
-    * `DELETE /api/user/<username>` 
+* Auth
+    - `POST /auth/login`: Login and receive `access_token`
+    - `GET /auth/logout`: Logout and delete active `access_token`
+* Users
+    - `POST /users`: Register a new user 
+    - `GET /users`: Get all users
+    - `GET /users/<username>`: Get a specific user
+    - `DELETE /users/<username>`: Delete a specific user
+* Drones
+    - `POST /drones`: Register a new drone 
+    - `GET /drones`: Get all drones
+    - `DELETE /drones`: Delete all drones
+    - `DELETE /drones/<drone_id>`: Delete a specific drone
+* Worker Nodes
+    - `POST /workers`: Register a new worker node
+    - `GET /workers`: Get all worker nodes
+    - `DELETE /workers`: Delete all worker nodes
+    - [ ] `DELETE /workers/<worker_id>`: Delete a specific worker node
+* Frames
+    - `POST /frames`: Insert a new image frame
+    - `GET /frames`: Get all image frames
+    - `DELETE /frames`: Delete all image frames
+* CPU utilization
+    - `POST /util/cpu/cores`: Add current (timestamp) CPU Cores utilization (in percent)
+    - `GET /util/cpu/cores/<num_records>`: Get last N records of CPU Cores utilization (in percent)
+    - `POST /util/cpu/rams`: Add current (timestamp) CPU RAMs utilization (in GB)
+    - `GET /util/cpu/rams/<num_records>`: Get last N records of CPU RAMs utilization (in GB)
+* GPU utilization
+    - `POST /util/gpu/rams`: Add current (timestamp) GPU RAMs utilization (in GB)
+    - `GET /util/gpu/rams/<num_records>`: Get last N records of GPU RAMs utilization (in GB)
 
 ### Response
 
