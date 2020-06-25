@@ -54,3 +54,18 @@ class CpuRamRoute(Resource):
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")
+
+@api.route('/cpu/ram/latest')
+# @api.hide
+@api.response(404, 'Json Input should be provided.')
+@api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
+class CpuRamFindRoute(Resource):
+    @api.doc(security=None)
+    @api.marshal_with(register_cpu_ram_results)
+    def get(self):
+        '''Get Latest data'''
+        try:
+            resp = CpuRam().get_latest()
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")

@@ -54,3 +54,18 @@ class GpuRamRoute(Resource):
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")
+
+@api.route('/gpu/ram/latest')
+# @api.hide
+@api.response(404, 'Json Input should be provided.')
+@api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
+class GpuRamFindRoute(Resource):
+    @api.doc(security=None)
+    @api.marshal_with(register_gpu_ram_results)
+    def get(self):
+        '''Get Latest data'''
+        try:
+            resp = GpuRam().get_latest()
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
