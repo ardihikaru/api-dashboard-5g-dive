@@ -2,12 +2,12 @@ from app import app, engine, local_settings
 from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
-from .cpu_ram_model import CpuRamModel
-from .cpu_ram_functions import get_all_data, del_all_data
+from .cpu_core_model import CpuCoreModel
+from .cpu_core_functions import get_all_data, del_all_data
 import simplejson as json
 
 
-class CpuRam(CpuRamModel):
+class CpuCore(CpuCoreModel):
     def __init__(self):
         self.resp_status = None
         self.resp_data = None
@@ -24,8 +24,8 @@ class CpuRam(CpuRamModel):
         self.msg = msg
 
     def __validate_register_data(self, ses, json_data):
-        if "util_gb" not in json_data:
-            return False, "util_gb should not be EMPTY."
+        if "util_num" not in json_data:
+            return False, "util_num should not be EMPTY."
 
         if "util_percent" not in json_data:
             return False, "util_percent should not be EMPTY."
@@ -38,7 +38,7 @@ class CpuRam(CpuRamModel):
         self.set_msg(msg)
 
         if is_valid:
-            msg = "Adding new log data `CPU RAM utilization` succeed."
+            msg = "Adding new log data `CPU Core utilization` succeed."
             self.insert(ses, json_data)
             self.set_msg(msg)
 
@@ -49,7 +49,7 @@ class CpuRam(CpuRamModel):
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_get_data(self, ses, get_args=None):
-        is_valid, data = get_all_data(ses, CpuRam)
+        is_valid, data = get_all_data(ses, CpuCore)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:
@@ -74,10 +74,10 @@ class CpuRam(CpuRamModel):
         return get_json_template(response=self.resp_status, results=self.resp_data, message=self.msg)
 
     def trx_del_all_data(self, ses):
-        is_valid, db_data, msg = del_all_data(ses, CpuRam)
+        is_valid, db_data, msg = del_all_data(ses, CpuCore)
         if db_data is None:
             is_valid = False
-            msg = "CPU RAM data not found"
+            msg = "CPU Core data not found"
         self.set_resp_status(is_valid)
         self.set_msg(msg)
         if is_valid:
