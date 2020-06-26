@@ -8,7 +8,8 @@ from app.addons.database_blacklist.blacklist_helpers import (
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .user_model import UserModel
-from .user_functions import get_all_users, get_user_by_username, del_user_by_username, store_jwt_data, upd_user_by_userid
+from .user_functions import get_all_users, get_user_by_username, del_user_by_username, store_jwt_data, \
+    del_user_by_userid, upd_user_by_userid, get_user_by_userid
 import simplejson as json
 
 
@@ -179,7 +180,7 @@ class User(UserModel):
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_del_data_by_userid(self, ses, userid):
-        is_valid, user_data, msg = del_user_by_username(ses, User, userid)
+        is_valid, user_data, msg = del_user_by_userid(ses, User, userid)
         self.set_resp_status(is_valid)
         self.set_msg(msg)
         if is_valid:
@@ -202,4 +203,17 @@ class User(UserModel):
 
     def update_data_by_userid(self, userid, json_data):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_upd_data_by_userid(var, userid, json_data))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_get_data_by_userid(self, ses, userid):
+        is_valid, user_data = get_user_by_userid(ses, User, userid)
+        self.set_resp_status(is_valid)
+        self.set_msg("Fetching data failed.")
+        if is_valid:
+            self.set_msg("Collecting data success.")
+
+        self.set_resp_data(user_data)
+
+    def get_data_by_userid(self, userid):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_userid(var, userid))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)

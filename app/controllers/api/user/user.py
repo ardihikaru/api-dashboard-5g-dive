@@ -77,7 +77,7 @@ class UserRoute(Resource):
         except:
             abort(400, "Input unrecognizable.")
 
-@api.route('/<username>')
+@api.route('/username/<username>')
 # @api.hide
 @api.response(404, 'Json Input should be provided.')
 @api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
@@ -85,6 +85,7 @@ class UserFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_results)
     def get(self, username):
+        print(" --- ENTAH KOK DISINI ..")
         '''Get user data by username'''
         try:
             resp = User().get_data_by_username(username)
@@ -110,9 +111,19 @@ class UserFindRoute(Resource):
 class UserIDFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_results)
+    def get(self, userid):
+        '''Get user data by user ID'''
+        try:
+            resp = User().get_data_by_userid(userid)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+    @api.doc(security=None)
+    @api.marshal_with(register_results)
     @api.expect(editable_data)
     def put(self, userid):
-        '''Get user data by username'''
+        '''Update user data by user ID'''
         try:
             json_data = api.payload
             resp = User().update_data_by_userid(userid, json_data)
@@ -123,7 +134,7 @@ class UserIDFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_results)
     def delete(self, userid):
-        '''Delete user data by username'''
+        '''Delete user data by user ID'''
         try:
             resp = User().delete_data_by_userid(userid)
             return masked_json_template(resp, 200)

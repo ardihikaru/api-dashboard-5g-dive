@@ -95,6 +95,19 @@ def upd_user_by_userid(ses, user_model, userid, show_passwd=False, new_data=None
         return False, None, None
 
 
+def get_user_by_userid(ses, user_model, userid, show_passwd=False):
+    try:
+        data = ses.query(user_model).filter_by(id=userid).one()
+    except NoResultFound:
+        return False, None
+    dict_user = data.to_dict(show_passwd)
+
+    if len(dict_user) > 0:
+        return True, dict_user
+    else:
+        return False, None
+
+
 def store_jwt_data(json_data):
     my_identity = {
         "username": json_data["username"]
