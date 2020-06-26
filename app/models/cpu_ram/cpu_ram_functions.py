@@ -1,12 +1,21 @@
-from app import app, rc
+from app import app, rc, local_settings
 from sqlalchemy.orm.exc import NoResultFound
 from app.addons.utils import sqlresp_to_dict
 from sqlalchemy import desc
 
 
-def get_all_data(ses, data_model):
+def get_all_data(ses, data_model, args=None):
     try:
-        data = ses.query(data_model).all()
+        if args is not None:
+            if len(args["range"]) == 0:
+                args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
+        else:
+            args = {
+                "filter": {},
+                "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
+                "sort": []
+            }
+        data = ses.query(data_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
         return False, None
     data_dict = sqlresp_to_dict(data)

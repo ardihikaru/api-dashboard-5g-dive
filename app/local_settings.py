@@ -1,6 +1,10 @@
 
 class LocalSettings:
     __shared_state = {
+            "pagination": {
+                "offset": 0,
+                "limit": 10
+            },
             "queue_config": {
                 "main_path": "app/data/resources/queue/",
                 "pool_size": 2,
