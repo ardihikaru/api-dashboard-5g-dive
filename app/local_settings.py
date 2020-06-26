@@ -36,7 +36,7 @@ class LocalSettings:
             #         "error": "error"
             #     }
             # }
-            # "android_key"               : "80If2wqGin-aJ-Kg0U89zj8cazTGKXdm7UULtgdnExI="
+            "fernet_key" : "80If2wqGin-aJ-Kg0U89zj8cazTGKXdm7UULtgdnExI="
         }
     def __init__(self):
         self.__dict__ = self.__shared_state

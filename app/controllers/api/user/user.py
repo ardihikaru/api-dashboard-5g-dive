@@ -49,8 +49,10 @@ class UserRoute(Resource):
     @api.expect(register_data)
     def post(self):
         '''Add new user'''
+        print(" --- add new user ..")
         try:
             json_data = api.payload
+            print(" ---- json_data:", json_data)
             resp = User().register(json_data)
             return masked_json_template(resp, 200)
         except:
@@ -59,7 +61,7 @@ class UserRoute(Resource):
     @api.doc(security=None)
     @api.marshal_list_with(all_user_data)
     def get(self):
-        '''Get user data'''
+        '''Get all user data'''
         try:
             try:
                 get_args = {
@@ -85,7 +87,6 @@ class UserFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_results)
     def get(self, username):
-        print(" --- ENTAH KOK DISINI ..")
         '''Get user data by username'''
         try:
             resp = User().get_data_by_username(username)

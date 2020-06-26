@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .user_model import UserModel
 from .user_functions import get_all_users, get_user_by_username, del_user_by_username, store_jwt_data, \
-    del_user_by_userid, upd_user_by_userid, get_user_by_userid
+    del_user_by_userid, upd_user_by_userid, get_user_by_userid, insert_new_data
 import simplejson as json
 
 
@@ -17,6 +17,7 @@ class User(UserModel):
     def __init__(self):
         self.resp_status = None
         self.resp_data = None
+        self.total_records = 0
         self.msg = None
         self.password_hash = None
 
@@ -79,7 +80,7 @@ class User(UserModel):
             msg = "Registration is success. Now, you can login into our system."
             self.set_password(json_data["password"])
             json_data["password"] = self.password_hash
-            self.insert(ses, json_data)
+            _, json_data = insert_new_data(ses, UserModel, json_data)
             self.set_msg(msg)
 
         self.set_resp_data(json_data)
@@ -127,7 +128,7 @@ class User(UserModel):
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_get_users(self, ses, get_args=None):
-        is_valid, users = get_all_users(ses, User)
+        is_valid, users, self.total_records = get_all_users(ses, User, get_args)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:
@@ -150,7 +151,8 @@ class User(UserModel):
         get_args = self.__extract_get_args(get_args)
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_users(var, get_args=get_args))
         # return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
-        return get_json_template(response=self.resp_status, results=self.resp_data, message=self.msg)
+        return get_json_template(response=self.resp_status, results=self.resp_data, message=self.msg,
+                                 total=self.total_records)
         # return self.resp_data
 
     def trx_get_data_by_username(self, ses, username):

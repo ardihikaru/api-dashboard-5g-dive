@@ -3,28 +3,65 @@ from sqlalchemy.orm.exc import NoResultFound
 from app.addons.redis.translator import redis_get, redis_set
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, decode_token, get_jti
 from app.addons.utils import sqlresp_to_dict
+from app.addons.cryptography.fernet import encrypt
+
+
+def insert_new_data(ses, user_model, new_data):
+    new_data["identifier"] = encrypt(new_data["username"])
+    ses.add(user_model(
+                name=new_data["name"],
+                username=new_data["username"],
+                email=new_data["email"],
+                password=new_data["password"],
+                identifier=new_data["identifier"]
+            )
+    )
+
+    _, inserted_data = get_user_by_identifier(ses, user_model, new_data["identifier"])
+
+    if len(inserted_data) > 0:
+        return True, inserted_data
+    else:
+        return False, None
+
+
+def get_user_by_identifier(ses, user_model, identifier, show_passwd=False):
+    try:
+        data = ses.query(user_model).filter_by(identifier=identifier).one()
+    except NoResultFound:
+        return False, None
+    dict_user = data.to_dict(show_passwd)
+
+    if len(dict_user) > 0:
+        return True, dict_user
+    else:
+        return False, None
 
 
 def get_all_users(ses, user_model, args=None):
     try:
         if args is not None:
+            # print(" --- masuk IF: args=", args)
             if len(args["range"]) == 0:
                 args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
         else:
+            # print(" ---- masuk ELSE: args=", args)
             args = {
                 "filter": {},
                 "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
                 "sort": []
             }
+        data_all = ses.query(user_model).all()
+        # print(" --- total data: ", len(data_all))
         data = ses.query(user_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
-        return False, None
+        return False, None, 0
     data_dict = sqlresp_to_dict(data)
 
     if len(data_dict) > 0:
-        return True, data_dict
+        return True, data_dict, len(data_all)
     else:
-        return False, None
+        return False, None, 0
 
 
 def get_user_by_username(ses, user_model, username, show_passwd=False):
