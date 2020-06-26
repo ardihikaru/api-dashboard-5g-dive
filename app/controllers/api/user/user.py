@@ -49,10 +49,8 @@ class UserRoute(Resource):
     @api.expect(register_data)
     def post(self):
         '''Add new user'''
-        print(" --- add new user ..")
         try:
             json_data = api.payload
-            print(" ---- json_data:", json_data)
             resp = User().register(json_data)
             return masked_json_template(resp, 200)
         except:

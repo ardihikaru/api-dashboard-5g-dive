@@ -41,18 +41,15 @@ def get_user_by_identifier(ses, user_model, identifier, show_passwd=False):
 def get_all_users(ses, user_model, args=None):
     try:
         if args is not None:
-            # print(" --- masuk IF: args=", args)
             if len(args["range"]) == 0:
                 args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
         else:
-            # print(" ---- masuk ELSE: args=", args)
             args = {
                 "filter": {},
                 "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
                 "sort": []
             }
         data_all = ses.query(user_model).all()
-        # print(" --- total data: ", len(data_all))
         data = ses.query(user_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
         return False, None, 0

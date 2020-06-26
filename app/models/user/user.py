@@ -150,10 +150,8 @@ class User(UserModel):
     def get_users(self, get_args=None):
         get_args = self.__extract_get_args(get_args)
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_users(var, get_args=get_args))
-        # return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
         return get_json_template(response=self.resp_status, results=self.resp_data, message=self.msg,
                                  total=self.total_records)
-        # return self.resp_data
 
     def trx_get_data_by_username(self, ses, username):
         is_valid, user_data = get_user_by_username(ses, User, username)
