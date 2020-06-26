@@ -101,3 +101,31 @@ class UserFindRoute(Resource):
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")
+
+
+@api.route('/<userid>')
+# @api.hide
+@api.response(404, 'Json Input should be provided.')
+@api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
+class UserIDFindRoute(Resource):
+    @api.doc(security=None)
+    @api.marshal_with(register_results)
+    @api.expect(editable_data)
+    def put(self, userid):
+        '''Get user data by username'''
+        try:
+            json_data = api.payload
+            resp = User().update_data_by_userid(userid, json_data)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+    @api.doc(security=None)
+    @api.marshal_with(register_results)
+    def delete(self, userid):
+        '''Delete user data by username'''
+        try:
+            resp = User().delete_data_by_userid(userid)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")

@@ -30,3 +30,9 @@ all_user_data = api.model('all_user_data', {
     'message': fields.String,
     'total': fields.Integer,
 })
+
+editable_data = api.model('editable_data', {
+    'name': fields.String,
+    'username': fields.String,
+    'email': fields.String,
+})

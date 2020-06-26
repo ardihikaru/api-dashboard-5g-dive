@@ -54,6 +54,46 @@ def del_user_by_username(ses, user_model, username, show_passwd=False):
     else:
         return False, None, None
 
+def del_user_by_userid(ses, user_model, userid, show_passwd=False):
+    try:
+        data = ses.query(user_model).filter_by(id=userid).one()
+        ses.query(user_model).filter_by(id=userid).delete()
+    except NoResultFound:
+        return False, None, "User not found"
+
+    dict_user = data.to_dict(show_passwd)
+
+    if len(dict_user) > 0:
+        return True, dict_user, None
+    else:
+        return False, None, None
+
+
+def upd_user_by_userid(ses, user_model, userid, show_passwd=False, new_data=None):
+    try:
+        data = ses.query(user_model).filter_by(id=userid).one()
+
+        if new_data is not None:
+            data.name = new_data["name"] if "name" in new_data else data.name
+            data.username = new_data["username"] if "username" in new_data else data.username
+            data.email = new_data["email"] if "email" in new_data else data.email
+
+        ses.query(user_model).filter_by(id=userid).update(
+            {
+                "name": data.name,
+                "username": data.username,
+                "email": data.email
+            }
+        )
+    except NoResultFound:
+        return False, None, None
+    dict_user = data.to_dict(show_passwd)
+
+    if len(dict_user) > 0:
+        return True, dict_user, None
+    else:
+        return False, None, None
+
 
 def store_jwt_data(json_data):
     my_identity = {
