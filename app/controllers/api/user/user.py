@@ -49,8 +49,10 @@ class UserRoute(Resource):
     @api.expect(register_data)
     def post(self):
         '''Add new user'''
+        print(" --- add new user ..")
         try:
             json_data = api.payload
+            print(" ---- json_data:", json_data)
             resp = User().register(json_data)
             return masked_json_template(resp, 200)
         except:
@@ -59,7 +61,7 @@ class UserRoute(Resource):
     @api.doc(security=None)
     @api.marshal_list_with(all_user_data)
     def get(self):
-        '''Get user data'''
+        '''Get all user data'''
         try:
             try:
                 get_args = {
@@ -77,7 +79,7 @@ class UserRoute(Resource):
         except:
             abort(400, "Input unrecognizable.")
 
-@api.route('/<username>')
+@api.route('/username/<username>')
 # @api.hide
 @api.response(404, 'Json Input should be provided.')
 @api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
@@ -98,6 +100,44 @@ class UserFindRoute(Resource):
         '''Delete user data by username'''
         try:
             resp = User().delete_data_by_username(username)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+
+@api.route('/<userid>')
+# @api.hide
+@api.response(404, 'Json Input should be provided.')
+@api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
+class UserIDFindRoute(Resource):
+    @api.doc(security=None)
+    @api.marshal_with(register_results)
+    def get(self, userid):
+        '''Get user data by user ID'''
+        try:
+            resp = User().get_data_by_userid(userid)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+    @api.doc(security=None)
+    @api.marshal_with(register_results)
+    @api.expect(editable_data)
+    def put(self, userid):
+        '''Update user data by user ID'''
+        try:
+            json_data = api.payload
+            resp = User().update_data_by_userid(userid, json_data)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+    @api.doc(security=None)
+    @api.marshal_with(register_results)
+    def delete(self, userid):
+        '''Delete user data by user ID'''
+        try:
+            resp = User().delete_data_by_userid(userid)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")

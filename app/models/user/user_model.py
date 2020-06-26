@@ -9,9 +9,10 @@ class UserModel(Base):
     username = Column(String(50))
     email = Column(String(100))
     password = Column(String(150))
+    identifier = Column(String(150))
     create_time = Column(TIMESTAMP, server_default=text('(now())'))
 
-    def to_dict(self, show_passwd):
+    def to_dict(self, show_passwd=False):
         user_info = {
             'id': self.id,
             'name': self.name,
@@ -22,14 +23,3 @@ class UserModel(Base):
         if show_passwd:
             user_info["password"] = self.password
         return user_info
-
-    def insert(self, ses, data):
-        ses.add(
-            UserModel(
-                name=data["name"],
-                username=data["username"],
-                email=data["email"],
-                password=data["password"]
-            )
-        )
-
