@@ -27,10 +27,10 @@ def get_data_by_identifier(ses, data_model, identifier):
         data = ses.query(data_model).filter_by(identifier=identifier).one()
     except NoResultFound:
         return False, None
-    dict_user = data.to_dict()
+    dict_data = data.to_dict()
 
-    if len(dict_user) > 0:
-        return True, dict_user
+    if len(dict_data) > 0:
+        return True, dict_data
     else:
         return False, None
 

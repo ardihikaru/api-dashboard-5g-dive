@@ -16,11 +16,11 @@ class LoginByTokenRoute(Resource):
     @api.marshal_with(login_results)
     @api.expect(login_model)
     def post(self):
-        '''Login using Binary Token to get Server Token'''
+        '''Login to get Server Token'''
         try:
             json_data = api.payload
             resp = User().validate_user(json_data=json_data)
-            return masked_json_template(resp, 200)
+            return masked_json_template(resp, 200, resp_code=403)
         except:
             resp = get_json_template(response=False, message="No Json Input Found.", results=-1, total=-1)
             return resp, 404

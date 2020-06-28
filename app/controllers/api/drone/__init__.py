@@ -30,3 +30,8 @@ delete_drone_results = api.model('delete_drone_results', {
     'response': fields.Boolean,
     'message': fields.String,
 })
+
+editable_data = api.model('editable_data', {
+    'drone_id': fields.String,
+    'drone_name': fields.String,
+})

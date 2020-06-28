@@ -5,7 +5,9 @@ from app.addons.cryptography.fernet import encrypt
 
 
 def insert_new_data(ses, data_model, new_data):
-    new_data["identifier"] = encrypt(new_data["frame_name"])
+    # new_data["identifier"] = encrypt(new_data["frame_name"])
+    identifier_str = new_data["frame_id"] + new_data["drone_id"] + new_data["node_id"]
+    new_data["identifier"] = encrypt(identifier_str)
     ses.add(data_model(
                 frame_id=new_data["frame_id"],
                 drone_id=new_data["drone_id"],
@@ -28,10 +30,10 @@ def get_data_by_identifier(ses, data_model, identifier):
         data = ses.query(data_model).filter_by(identifier=identifier).one()
     except NoResultFound:
         return False, None
-    dict_user = data.to_dict()
+    dict_data = data.to_dict()
 
-    if len(dict_user) > 0:
-        return True, dict_user
+    if len(dict_data) > 0:
+        return True, dict_data
     else:
         return False, None
 
@@ -85,17 +87,53 @@ def del_frame_by_frame_name(ses, frame_model, frame_name):
     else:
         return False, None, None
 
-
-def del_all_frames(ses, frame_model):
+def del_all_frames(ses, data_model, args=None):
+    deleted_data = []
+    no_filter = True
     try:
-        data = ses.query(frame_model).all()
-        ses.query(frame_model).delete()
+        data = None
+        if args is not None:
+            if len(args["range"]) == 0:
+                args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
+        else:
+            args = {
+                "filter": {},
+                "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
+                "sort": []
+            }
+        if len(args["filter"]) > 0:
+            if "id" in args["filter"]:
+                for i in range(len(args["filter"]["id"]) ):
+                    uid = args["filter"]["id"][i]
+                    data = ses.query(data_model).filter_by(id=uid).one()
+                    deleted_data.append(data.to_dict())
+                    ses.query(data_model).filter_by(id=uid).delete()
+                    no_filter = False
+        if no_filter:
+            data = ses.query(data_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
-        return False, None, "frame not found"
+        return False, None, "Frame not found"
 
-    dict_frame = sqlresp_to_dict(data)
+    if no_filter:
+        dict_drone = sqlresp_to_dict(data)
+    else:
+        dict_drone = deleted_data
 
-    if len(dict_frame) > 0:
-        return True, dict_frame, None
+    if len(dict_drone) > 0:
+        return True, dict_drone, None
     else:
         return False, None, None
+    
+# def del_all_frames(ses, frame_model, get_args=None):
+#     try:
+#         data = ses.query(frame_model).all()
+#         ses.query(frame_model).delete()
+#     except NoResultFound:
+#         return False, None, "frame not found"
+# 
+#     dict_frame = sqlresp_to_dict(data)
+# 
+#     if len(dict_frame) > 0:
+#         return True, dict_frame, None
+#     else:
+#         return False, None, None
