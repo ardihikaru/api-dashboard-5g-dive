@@ -72,6 +72,18 @@ class NodeFindRoute(Resource):
 
     @api.doc(security=None)
     @api.marshal_with(register_node_results)
+    @api.expect(editable_data)
+    def put(self, node_id):
+        '''Update user data by user ID'''
+        try:
+            json_data = api.payload
+            resp = Node().update_data_by_id(node_id, json_data)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+    @api.doc(security=None)
+    @api.marshal_with(register_node_results)
     def delete(self, node_id):
         '''Delete Node data by Node ID'''
         try:

@@ -30,3 +30,8 @@ delete_node_results = api.model('delete_node_results', {
     'response': fields.Boolean,
     'message': fields.String,
 })
+
+editable_data = api.model('editable_data', {
+    'node_id': fields.String,
+    'node_name': fields.String,
+})
