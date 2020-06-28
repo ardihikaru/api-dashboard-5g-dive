@@ -55,7 +55,7 @@ class DroneRoute(Resource):
         except:
             abort(400, "Input unrecognizable.")
 
-@api.route('/<drone_id>')
+@api.route('/drone_id/<drone_id>')
 # @api.hide
 @api.response(404, 'Json Input should be provided.')
 @api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
@@ -72,22 +72,37 @@ class DroneFindRoute(Resource):
 
     @api.doc(security=None)
     @api.marshal_with(register_drone_results)
-    @api.expect(editable_data)
-    def put(self, drone_id):
-        '''Update user data by user ID'''
+    def delete(self, drone_id):
+        '''Delete drone data by drone ID'''
         try:
-            json_data = api.payload
-            resp = Drone().update_data_by_id(drone_id, json_data)
+            resp = Drone().delete_data_by_drone_id(drone_id)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+@api.route('/<uid>')
+# @api.hide
+@api.response(404, 'Json Input should be provided.')
+@api.response(401, 'Unauthorized Access. Access Token should be provided and validated.')
+class DroneIDFindRoute(Resource):
+    @api.doc(security=None)
+    @api.marshal_with(register_drone_results)
+    def get(self, uid):
+        '''Get drone data by drone ID'''
+        try:
+            resp = Drone().get_data_by_id(uid)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")
 
     @api.doc(security=None)
     @api.marshal_with(register_drone_results)
-    def delete(self, drone_id):
-        '''Delete drone data by drone ID'''
+    @api.expect(editable_data)
+    def put(self, uid):
+        '''Update user data by user ID'''
         try:
-            resp = Drone().delete_data_by_drone_id(drone_id)
+            json_data = api.payload
+            resp = Drone().update_data_by_id(uid, json_data)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")

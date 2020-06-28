@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .drone_model import DroneModel
 from .drone_functions import get_all_drones, get_drone_by_drone_id, del_drone_by_drone_id, del_all_drones, \
-    insert_new_data, upd_data_by_id
+    insert_new_data, upd_data_by_id, get_data_by_uid
 import simplejson as json
 
 
@@ -134,5 +134,18 @@ class Drone(DroneModel):
 
     def update_data_by_id(self, uid, json_data):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_upd_data_by_id(var, uid, json_data))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_get_data_by_uid(self, ses, uid):
+        is_valid, drone_data = get_data_by_uid(ses, Drone, uid)
+        self.set_resp_status(is_valid)
+        self.set_msg("Fetching data failed.")
+        if is_valid:
+            self.set_msg("Collecting data success.")
+
+        self.set_resp_data(drone_data)
+
+    def get_data_by_id(self, uid):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_uid(var, uid))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
