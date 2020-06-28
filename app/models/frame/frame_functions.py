@@ -5,7 +5,9 @@ from app.addons.cryptography.fernet import encrypt
 
 
 def insert_new_data(ses, data_model, new_data):
-    new_data["identifier"] = encrypt(new_data["frame_name"])
+    # new_data["identifier"] = encrypt(new_data["frame_name"])
+    identifier_str = new_data["frame_id"] + new_data["drone_id"] + new_data["node_id"]
+    new_data["identifier"] = encrypt(identifier_str)
     ses.add(data_model(
                 frame_id=new_data["frame_id"],
                 drone_id=new_data["drone_id"],

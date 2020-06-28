@@ -6,8 +6,8 @@ class FrameModel(Base):
     __tablename__ = 'frames'
     id = Column(Integer, primary_key=True, autoincrement=True)
     frame_id = Column(String(3))
-    drone_id = Column(String(3))
-    node_id = Column(String(3))
+    drone_id = Column(String(50))
+    node_id = Column(String(50))
     frame_name = Column(String(50))
     identifier = Column(String(150))
     create_time = Column(TIMESTAMP, server_default=text('(now())'))
