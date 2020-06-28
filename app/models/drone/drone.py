@@ -3,7 +3,8 @@ from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .drone_model import DroneModel
-from .drone_functions import get_all_drones, get_drone_by_drone_id, del_drone_by_drone_id, del_all_drones
+from .drone_functions import get_all_drones, get_drone_by_drone_id, del_drone_by_drone_id, del_all_drones, \
+    insert_new_data
 import simplejson as json
 
 
@@ -45,7 +46,7 @@ class Drone(DroneModel):
 
         if is_valid:
             msg = "Registering a new drone device succeed."
-            self.insert(ses, json_data)
+            _, json_data = insert_new_data(ses, DroneModel, json_data)
             self.set_msg(msg)
 
         self.set_resp_data(json_data)

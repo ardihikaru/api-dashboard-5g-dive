@@ -3,7 +3,7 @@ from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .node_model import NodeModel
-from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes
+from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes, insert_new_data
 import simplejson as json
 
 
@@ -45,7 +45,7 @@ class Node(NodeModel):
 
         if is_valid:
             msg = "Registering a new Node device succeed."
-            self.insert(ses, json_data)
+            _, json_data = insert_new_data(ses, NodeModel, json_data)
             self.set_msg(msg)
 
         self.set_resp_data(json_data)

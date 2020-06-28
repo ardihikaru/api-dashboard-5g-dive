@@ -1,6 +1,35 @@
 from app import app, rc, local_settings
 from sqlalchemy.orm.exc import NoResultFound
 from app.addons.utils import sqlresp_to_dict
+from app.addons.cryptography.fernet import encrypt
+
+
+def insert_new_data(ses, data_model, new_data):
+    new_data["identifier"] = encrypt(new_data["drone_name"])
+    ses.add(data_model(
+        drone_id=new_data["drone_id"],
+        drone_name=new_data["drone_name"],
+        identifier=new_data["identifier"]
+    ))
+    _, inserted_data = get_data_by_identifier(ses, data_model, new_data["identifier"])
+
+    if len(inserted_data) > 0:
+        return True, inserted_data
+    else:
+        return False, None
+
+
+def get_data_by_identifier(ses, data_model, identifier, show_passwd=False):
+    try:
+        data = ses.query(data_model).filter_by(identifier=identifier).one()
+    except NoResultFound:
+        return False, None
+    dict_user = data.to_dict()
+
+    if len(dict_user) > 0:
+        return True, dict_user
+    else:
+        return False, None
 
 
 def get_all_drones(ses, drone_model, args=None):

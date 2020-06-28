@@ -17,7 +17,7 @@ def insert_new_data(ses, user_model, new_data):
             )
     )
 
-    _, inserted_data = get_user_by_identifier(ses, user_model, new_data["identifier"])
+    _, inserted_data = get_data_by_identifier(ses, user_model, new_data["identifier"])
 
     if len(inserted_data) > 0:
         return True, inserted_data
@@ -25,7 +25,7 @@ def insert_new_data(ses, user_model, new_data):
         return False, None
 
 
-def get_user_by_identifier(ses, user_model, identifier, show_passwd=False):
+def get_data_by_identifier(ses, user_model, identifier, show_passwd=False):
     try:
         data = ses.query(user_model).filter_by(identifier=identifier).one()
     except NoResultFound:

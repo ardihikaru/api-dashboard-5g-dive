@@ -9,6 +9,7 @@ class FrameModel(Base):
     drone_id = Column(String(3))
     node_id = Column(String(3))
     frame_name = Column(String(50))
+    identifier = Column(String(150))
     create_time = Column(TIMESTAMP, server_default=text('(now())'))
 
     def to_dict(self):
@@ -21,14 +22,3 @@ class FrameModel(Base):
             'create_time': self.create_time
         }
         return user_info
-
-    def insert(self, ses, data):
-        ses.add(
-            FrameModel(
-                frame_id=data["frame_id"],
-                drone_id=data["drone_id"],
-                node_id=data["node_id"],
-                frame_name=data["frame_name"]
-            )
-        )
-

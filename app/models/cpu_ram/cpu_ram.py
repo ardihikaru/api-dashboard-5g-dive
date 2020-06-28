@@ -3,7 +3,7 @@ from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .cpu_ram_model import CpuRamModel
-from .cpu_ram_functions import get_all_data, del_all_data, get_latest_data
+from .cpu_ram_functions import get_all_data, del_all_data, get_latest_data, insert_new_data
 import simplejson as json
 
 
@@ -39,7 +39,7 @@ class CpuRam(CpuRamModel):
 
         if is_valid:
             msg = "Adding new log data `CPU RAM utilization` succeed."
-            self.insert(ses, json_data)
+            _, json_data = insert_new_data(ses, CpuRamModel, json_data)
             self.set_msg(msg)
 
         self.set_resp_data(json_data)
