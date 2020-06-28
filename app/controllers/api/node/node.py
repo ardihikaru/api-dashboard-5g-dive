@@ -107,3 +107,13 @@ class DroneIDFindRoute(Resource):
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")
+
+    @api.doc(security=None)
+    @api.marshal_with(register_node_results)
+    def delete(self, uid):
+        '''Delete data by ID'''
+        try:
+            resp = Node().delete_data_by_id(uid)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")

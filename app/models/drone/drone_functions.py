@@ -44,7 +44,6 @@ def get_all_drones(ses, drone_model, args=None):
                 "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
                 "sort": []
             }
-        print(" ------- args:", args)
         no_filter = True
         if len(args["filter"]) > 0:
             if "id" in args["filter"]:
@@ -58,9 +57,7 @@ def get_all_drones(ses, drone_model, args=None):
     except NoResultFound:
         return False, None
 
-    print(" ---- DISINI OK SIH ...")
     data_dict = sqlresp_to_dict(data)
-    print(" ------- data_dict:", data_dict)
 
     if len(data_dict) > 0:
         return True, data_dict

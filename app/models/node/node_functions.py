@@ -137,3 +137,18 @@ def get_data_by_uid(ses, data_model, uid):
     else:
         return False, None
 
+
+def del_data_by_id(ses, data_model, uid):
+    try:
+        data = ses.query(data_model).filter_by(id=uid).one()
+        ses.query(data_model).filter_by(id=uid).delete()
+    except NoResultFound:
+        return False, None, "node not found"
+
+    dict_data = data.to_dict()
+
+    if len(dict_data) > 0:
+        return True, dict_data, None
+    else:
+        return False, None, None
+
