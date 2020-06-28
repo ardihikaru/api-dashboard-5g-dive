@@ -2,6 +2,37 @@ from app import app, rc, local_settings
 from sqlalchemy.orm.exc import NoResultFound
 from app.addons.utils import sqlresp_to_dict
 from sqlalchemy import desc
+from app.addons.cryptography.fernet import encrypt
+
+
+def insert_new_data(ses, data_model, new_data):
+    new_data["identifier"] = encrypt(str(new_data["util_gb"]))
+    ses.add(data_model(
+                util_gb=new_data["util_gb"],
+                util_percent=new_data["util_percent"],
+                identifier=new_data["identifier"]
+            )
+    )
+
+    _, inserted_data = get_data_by_identifier(ses, data_model, new_data["identifier"])
+
+    if len(inserted_data) > 0:
+        return True, inserted_data
+    else:
+        return False, None
+
+
+def get_data_by_identifier(ses, data_model, identifier):
+    try:
+        data = ses.query(data_model).filter_by(identifier=identifier).one()
+    except NoResultFound:
+        return False, None
+    dict_user = data.to_dict()
+
+    if len(dict_user) > 0:
+        return True, dict_user
+    else:
+        return False, None
 
 
 def get_all_data(ses, data_model, args=None):
