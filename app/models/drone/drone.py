@@ -41,6 +41,7 @@ class Drone(DroneModel):
 
     def trx_register(self, ses, json_data):
         is_valid, msg = self.__validate_register_data(ses, json_data)
+
         self.set_resp_status(is_valid)
         self.set_msg(msg)
 
