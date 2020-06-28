@@ -1,3 +1,14 @@
+## 1.1.0 (June 28, 2020)
+  - Merge branch 'feature/api/limit-offset' into develop
+  - changed logic to insert new data
+  - removed unused comments
+  - Merge branch 'feature/api/limit-offset' into develop
+  - added and tested: CRUD on /users
+  - added new API: Delete user by user ID
+  - added new API: [PUT] Edit user by user_id
+  - added filter: offset and limit (for pagination)
+  - Merge branch 'release-1.0' into develop
+
 ## 1.0 (June 25, 2020)
   - Merge branch 'feature/readme' into develop
   - updated readme
