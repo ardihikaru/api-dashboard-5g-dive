@@ -48,8 +48,6 @@ def get_all_nodes(ses, node_model, args=None):
         data = ses.query(node_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
         return False, None
-    # except Exception as e:
-    #     print(" -- e:", e)
     data_dict = sqlresp_to_dict(data)
 
     if len(data_dict) > 0:

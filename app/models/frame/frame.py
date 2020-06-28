@@ -90,7 +90,7 @@ class Frame(FrameModel):
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_get_frames(self, ses, get_args=None):
-        is_valid, frames = get_all_frames(ses, Frame)
+        is_valid, frames = get_all_frames(ses, Frame, get_args)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:
