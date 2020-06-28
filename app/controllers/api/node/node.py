@@ -40,8 +40,7 @@ class NodeRoute(Resource):
             if resp["results"] is None:
                 resp["results"] = []
 
-            return resp
-            # return masked_json_template(resp, 200, no_checking=True)
+            return masked_json_template(resp, 200, no_checking=True)
         except:
             abort(400, "Input unrecognizable.")
 
@@ -50,7 +49,15 @@ class NodeRoute(Resource):
     def delete(self):
         '''Delete all existing Nodes'''
         try:
-            resp = Node().delete_all_nodes()
+            try:
+                get_args = {
+                    "filter": request.args.get('filter', default="", type=str),
+                    "range": request.args.get('range', default="", type=str),
+                    "sort": request.args.get('sort', default="", type=str)
+                }
+            except:
+                get_args = None
+            resp = Node().delete_all_nodes(get_args)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")

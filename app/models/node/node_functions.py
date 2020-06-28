@@ -86,17 +86,40 @@ def del_node_by_node_id(ses, node_model, node_id):
         return False, None, None
 
 
-def del_all_nodes(ses, node_model):
+def del_all_nodes(ses, data_model, args=None):
+    deleted_data = []
+    no_filter = True
     try:
-        data = ses.query(node_model).all()
-        ses.query(node_model).delete()
+        data = None
+        if args is not None:
+            if len(args["range"]) == 0:
+                args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
+        else:
+            args = {
+                "filter": {},
+                "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
+                "sort": []
+            }
+        if len(args["filter"]) > 0:
+            if "id" in args["filter"]:
+                for i in range(len(args["filter"]["id"]) ):
+                    uid = args["filter"]["id"][i]
+                    data = ses.query(data_model).filter_by(id=uid).one()
+                    deleted_data.append(data.to_dict())
+                    ses.query(data_model).filter_by(id=uid).delete()
+                    no_filter = False
+        if no_filter:
+            data = ses.query(data_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
-        return False, None, "node not found"
+        return False, None, "Node not found"
 
-    dict_node = sqlresp_to_dict(data)
+    if no_filter:
+        dict_drone = sqlresp_to_dict(data)
+    else:
+        dict_drone = deleted_data
 
-    if len(dict_node) > 0:
-        return True, dict_node, None
+    if len(dict_drone) > 0:
+        return True, dict_drone, None
     else:
         return False, None, None
 

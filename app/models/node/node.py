@@ -106,8 +106,8 @@ class Node(NodeModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_node_id(var, node_id))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_del_all_data(self, ses):
-        is_valid, frame_data, msg = del_all_nodes(ses, Node)
+    def trx_del_all_data(self, ses, get_args=None):
+        is_valid, frame_data, msg = del_all_nodes(ses, Node, get_args)
         if frame_data is None:
             is_valid = False
             msg = "node not found"
@@ -118,8 +118,9 @@ class Node(NodeModel):
 
         self.set_resp_data(frame_data)
 
-    def delete_all_nodes(self):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
+    def delete_all_nodes(self, get_args):
+        get_args = self.__extract_get_args(get_args)
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var, get_args))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_upd_data_by_id(self, ses, uid, json_data):
