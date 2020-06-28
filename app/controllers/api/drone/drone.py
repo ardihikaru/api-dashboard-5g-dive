@@ -73,7 +73,7 @@ class DroneFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_drone_results)
     def delete(self, drone_id):
-        '''Delete drone data by drone ID'''
+        '''Delete data by ID'''
         try:
             resp = Drone().delete_data_by_drone_id(drone_id)
             return masked_json_template(resp, 200)
@@ -103,6 +103,16 @@ class DroneIDFindRoute(Resource):
         try:
             json_data = api.payload
             resp = Drone().update_data_by_id(uid, json_data)
+            return masked_json_template(resp, 200)
+        except:
+            abort(400, "Input unrecognizable.")
+
+    @api.doc(security=None)
+    @api.marshal_with(register_drone_results)
+    def delete(self, uid):
+        '''Delete data by ID'''
+        try:
+            resp = Drone().delete_data_by_id(uid)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")

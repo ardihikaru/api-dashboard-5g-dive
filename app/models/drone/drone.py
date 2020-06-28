@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .drone_model import DroneModel
 from .drone_functions import get_all_drones, get_drone_by_drone_id, del_drone_by_drone_id, del_all_drones, \
-    insert_new_data, upd_data_by_id, get_data_by_uid
+    insert_new_data, upd_data_by_id, get_data_by_uid, del_data_by_id
 import simplejson as json
 
 
@@ -57,7 +57,7 @@ class Drone(DroneModel):
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_get_drones(self, ses, get_args=None):
-        is_valid, drones = get_all_drones(ses, Drone)
+        is_valid, drones = get_all_drones(ses, Drone, get_args)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:
@@ -149,3 +149,15 @@ class Drone(DroneModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_uid(var, uid))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
+    def trx_del_data_by_id(self, ses, uid):
+        is_valid, drone_data, msg = del_data_by_id(ses, Drone, uid)
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Deleting data success.")
+
+        self.set_resp_data(drone_data)
+
+    def delete_data_by_id(self, uid):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_id(var, uid))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)

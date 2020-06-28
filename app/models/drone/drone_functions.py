@@ -34,6 +34,7 @@ def get_data_by_identifier(ses, data_model, identifier):
 
 def get_all_drones(ses, drone_model, args=None):
     try:
+        data = None
         if args is not None:
             if len(args["range"]) == 0:
                 args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
@@ -43,10 +44,23 @@ def get_all_drones(ses, drone_model, args=None):
                 "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
                 "sort": []
             }
-        data = ses.query(drone_model).offset(args["range"][0]).limit(args["range"][1]).all()
+        print(" ------- args:", args)
+        no_filter = True
+        if len(args["filter"]) > 0:
+            if "id" in args["filter"]:
+                if len(args["filter"]["id"]) == 1:
+                    print(" --- disini ...")
+                    uid = args["filter"]["id"][0]
+                    data = ses.query(drone_model).filter_by(id=uid).offset(args["range"][0]).limit(args["range"][1]).all()
+                    no_filter = False
+        if no_filter:
+            data = ses.query(drone_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
         return False, None
+
+    print(" ---- DISINI OK SIH ...")
     data_dict = sqlresp_to_dict(data)
+    print(" ------- data_dict:", data_dict)
 
     if len(data_dict) > 0:
         return True, data_dict
@@ -133,3 +147,17 @@ def get_data_by_uid(ses, data_model, uid):
     else:
         return False, None
 
+
+def del_data_by_id(ses, data_model, uid):
+    try:
+        data = ses.query(data_model).filter_by(id=uid).one()
+        ses.query(data_model).filter_by(id=uid).delete()
+    except NoResultFound:
+        return False, None, "drone not found"
+
+    dict_data = data.to_dict()
+
+    if len(dict_data) > 0:
+        return True, dict_data, None
+    else:
+        return False, None, None
