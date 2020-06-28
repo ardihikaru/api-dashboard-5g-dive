@@ -88,7 +88,7 @@ class DroneIDFindRoute(Resource):
     @api.doc(security=None)
     @api.marshal_with(register_drone_results)
     def get(self, uid):
-        '''Get drone data by drone ID'''
+        '''Get data by ID'''
         try:
             resp = Drone().get_data_by_id(uid)
             return masked_json_template(resp, 200)
@@ -99,7 +99,7 @@ class DroneIDFindRoute(Resource):
     @api.marshal_with(register_drone_results)
     @api.expect(editable_data)
     def put(self, uid):
-        '''Update user data by user ID'''
+        '''Update data by ID'''
         try:
             json_data = api.payload
             resp = Drone().update_data_by_id(uid, json_data)

@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .node_model import NodeModel
 from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes, insert_new_data, \
-    upd_data_by_id
+    upd_data_by_id, get_data_by_uid
 import simplejson as json
 
 
@@ -133,5 +133,18 @@ class Node(NodeModel):
 
     def update_data_by_id(self, uid, json_data):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_upd_data_by_id(var, uid, json_data))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_get_data_by_uid(self, ses, uid):
+        is_valid, data = get_data_by_uid(ses, Node, uid)
+        self.set_resp_status(is_valid)
+        self.set_msg("Fetching data failed.")
+        if is_valid:
+            self.set_msg("Collecting data success.")
+
+        self.set_resp_data(data)
+
+    def get_data_by_id(self, uid):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_uid(var, uid))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
