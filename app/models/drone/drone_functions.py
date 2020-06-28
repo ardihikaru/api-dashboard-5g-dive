@@ -48,7 +48,6 @@ def get_all_drones(ses, drone_model, args=None):
         if len(args["filter"]) > 0:
             if "id" in args["filter"]:
                 if len(args["filter"]["id"]) == 1:
-                    print(" --- disini ...")
                     uid = args["filter"]["id"][0]
                     data = ses.query(drone_model).filter_by(id=uid).offset(args["range"][0]).limit(args["range"][1]).all()
                     no_filter = False
@@ -93,14 +92,44 @@ def del_drone_by_drone_id(ses, drone_model, drone_id):
         return False, None, None
 
 
-def del_all_drones(ses, drone_model):
+def del_all_drones(ses, drone_model, args=None):
+    deleted_data = []
+    no_filter = True
     try:
-        data = ses.query(drone_model).all()
-        ses.query(drone_model).delete()
-    except NoResultFound:
-        return False, None, "node not found"
+        data = None
+        if args is not None:
+            if len(args["range"]) == 0:
+                args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
+        else:
+            args = {
+                "filter": {},
+                "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
+                "sort": []
+            }
 
-    dict_drone = sqlresp_to_dict(data)
+        print(" --- @ args ....", args)
+        if len(args["filter"]) > 0:
+            if "id" in args["filter"]:
+                for i in range(len(args["filter"]["id"]) ):
+                    uid = args["filter"]["id"][i]
+                    data = ses.query(drone_model).filter_by(id=uid).one()
+                    deleted_data.append(data.to_dict())
+                    ses.query(drone_model).filter_by(id=uid).delete()
+                    no_filter = False
+        if no_filter:
+            data = ses.query(drone_model).offset(args["range"][0]).limit(args["range"][1]).all()
+    except NoResultFound:
+        return False, None, "Drone not found"
+    # try:
+    #     data = ses.query(drone_model).all()
+    #     ses.query(drone_model).delete()
+    # except NoResultFound:
+    #     return False, None, "node not found"
+
+    if no_filter:
+        dict_drone = sqlresp_to_dict(data)
+    else:
+        dict_drone = deleted_data
 
     if len(dict_drone) > 0:
         return True, dict_drone, None

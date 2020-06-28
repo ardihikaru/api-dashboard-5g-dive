@@ -50,7 +50,16 @@ class DroneRoute(Resource):
     def delete(self):
         '''Delete all existing Drones'''
         try:
-            resp = Drone().delete_all_drones()
+            try:
+                get_args = {
+                    "filter": request.args.get('filter', default="", type=str),
+                    "range": request.args.get('range', default="", type=str),
+                    "sort": request.args.get('sort', default="", type=str)
+                }
+            except:
+                get_args = None
+
+            resp = Drone().delete_all_drones(get_args)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")
