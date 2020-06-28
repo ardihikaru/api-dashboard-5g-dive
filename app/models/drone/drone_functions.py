@@ -106,8 +106,6 @@ def del_all_drones(ses, drone_model, args=None):
                 "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
                 "sort": []
             }
-
-        print(" --- @ args ....", args)
         if len(args["filter"]) > 0:
             if "id" in args["filter"]:
                 for i in range(len(args["filter"]["id"]) ):
@@ -120,11 +118,6 @@ def del_all_drones(ses, drone_model, args=None):
             data = ses.query(drone_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
         return False, None, "Drone not found"
-    # try:
-    #     data = ses.query(drone_model).all()
-    #     ses.query(drone_model).delete()
-    # except NoResultFound:
-    #     return False, None, "node not found"
 
     if no_filter:
         dict_drone = sqlresp_to_dict(data)

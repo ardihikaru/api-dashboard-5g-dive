@@ -27,7 +27,15 @@ class FrameRoute(Resource):
     def delete(self):
         '''Delete all existing Frames'''
         try:
-            resp = Frame().delete_all_frames()
+            try:
+                get_args = {
+                    "filter": request.args.get('filter', default="", type=str),
+                    "range": request.args.get('range', default="", type=str),
+                    "sort": request.args.get('sort', default="", type=str)
+                }
+            except:
+                get_args = None
+            resp = Frame().delete_all_frames(get_args)
             return masked_json_template(resp, 200)
         except:
             abort(400, "Input unrecognizable.")

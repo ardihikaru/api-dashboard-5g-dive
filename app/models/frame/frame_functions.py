@@ -87,17 +87,53 @@ def del_frame_by_frame_name(ses, frame_model, frame_name):
     else:
         return False, None, None
 
-
-def del_all_frames(ses, frame_model):
+def del_all_frames(ses, data_model, args=None):
+    deleted_data = []
+    no_filter = True
     try:
-        data = ses.query(frame_model).all()
-        ses.query(frame_model).delete()
+        data = None
+        if args is not None:
+            if len(args["range"]) == 0:
+                args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
+        else:
+            args = {
+                "filter": {},
+                "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
+                "sort": []
+            }
+        if len(args["filter"]) > 0:
+            if "id" in args["filter"]:
+                for i in range(len(args["filter"]["id"]) ):
+                    uid = args["filter"]["id"][i]
+                    data = ses.query(data_model).filter_by(id=uid).one()
+                    deleted_data.append(data.to_dict())
+                    ses.query(data_model).filter_by(id=uid).delete()
+                    no_filter = False
+        if no_filter:
+            data = ses.query(data_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
-        return False, None, "frame not found"
+        return False, None, "Frame not found"
 
-    dict_frame = sqlresp_to_dict(data)
+    if no_filter:
+        dict_drone = sqlresp_to_dict(data)
+    else:
+        dict_drone = deleted_data
 
-    if len(dict_frame) > 0:
-        return True, dict_frame, None
+    if len(dict_drone) > 0:
+        return True, dict_drone, None
     else:
         return False, None, None
+    
+# def del_all_frames(ses, frame_model, get_args=None):
+#     try:
+#         data = ses.query(frame_model).all()
+#         ses.query(frame_model).delete()
+#     except NoResultFound:
+#         return False, None, "frame not found"
+# 
+#     dict_frame = sqlresp_to_dict(data)
+# 
+#     if len(dict_frame) > 0:
+#         return True, dict_frame, None
+#     else:
+#         return False, None, None

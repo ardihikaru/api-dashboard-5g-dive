@@ -140,8 +140,8 @@ class Frame(FrameModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_frame_name(var, frame_name))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_del_all_data(self, ses):
-        is_valid, frame_data, msg = del_all_frames(ses, Frame)
+    def trx_del_all_data(self, ses, get_args=None):
+        is_valid, frame_data, msg = del_all_frames(ses, Frame, get_args)
         if frame_data is None:
             is_valid = False
             msg = "frame not found"
@@ -152,7 +152,8 @@ class Frame(FrameModel):
 
         self.set_resp_data(frame_data)
 
-    def delete_all_frames(self):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
+    def delete_all_frames(self, get_args=None):
+        get_args = self.__extract_get_args(get_args)
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var, get_args))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
