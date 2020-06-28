@@ -95,3 +95,26 @@ def del_all_drones(ses, drone_model):
         return True, dict_drone, None
     else:
         return False, None, None
+
+def upd_data_by_id(ses, data_model, uid, new_data=None):
+    try:
+        data = ses.query(data_model).filter_by(id=uid).one()
+
+        if new_data is not None:
+            data.drone_id = new_data["drone_id"] if "drone_id" in new_data else data.name
+            data.drone_name = new_data["drone_name"] if "drone_name" in new_data else data.username
+
+        ses.query(data_model).filter_by(id=uid).update(
+            {
+                "drone_id": data.drone_id,
+                "drone_name": data.drone_name
+            }
+        )
+    except NoResultFound:
+        return False, None, None
+    dict_data = data.to_dict()
+
+    if len(dict_data) > 0:
+        return True, dict_data, None
+    else:
+        return False, None, None
