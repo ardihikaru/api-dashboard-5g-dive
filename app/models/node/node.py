@@ -3,7 +3,7 @@ from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .node_model import NodeModel
-from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes
+from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes, insert_new_data
 import simplejson as json
 
 
@@ -45,7 +45,7 @@ class Node(NodeModel):
 
         if is_valid:
             msg = "Registering a new Node device succeed."
-            self.insert(ses, json_data)
+            _, json_data = insert_new_data(ses, NodeModel, json_data)
             self.set_msg(msg)
 
         self.set_resp_data(json_data)
@@ -55,7 +55,7 @@ class Node(NodeModel):
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_get_nodes(self, ses, get_args=None):
-        is_valid, nodes = get_all_nodes(ses, Node)
+        is_valid, nodes = get_all_nodes(ses, Node, get_args)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:

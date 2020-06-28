@@ -5,7 +5,7 @@ from .logger import err_logger, info_logger, any_logger
 from flask_jwt_extended import JWTManager
 from flask_restplus import Api
 from flask_cors import CORS
-# from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet
 from werkzeug.contrib.fixers import ProxyFix
 from .initialization import init_folders, is_localhost
 from concurrent.futures import ThreadPoolExecutor
@@ -70,8 +70,8 @@ rc_user = StrictRedis(
 )
 
 # encrypt & decrypt
-# key = local_settings["android_key"].encode()
-# fernet = Fernet(key)
+key = local_settings["fernet_key"].encode()
+fernet = Fernet(key)
 
 authorizations = {
     'Bearer Auth': {

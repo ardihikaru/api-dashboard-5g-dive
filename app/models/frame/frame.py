@@ -5,7 +5,8 @@ from cockroachdb.sqlalchemy import run_transaction
 from .frame_model import FrameModel
 from ..drone.drone_model import DroneModel
 from ..node.node_model import NodeModel
-from .frame_functions import get_all_frames, get_frame_by_frame_name, del_frame_by_frame_name, del_all_frames
+from .frame_functions import get_all_frames, get_frame_by_frame_name, del_frame_by_frame_name, del_all_frames, \
+    insert_new_data
 from ..drone.drone_functions import get_drone_by_drone_id
 from ..node.node_functions import get_node_by_node_id
 import simplejson as json
@@ -63,7 +64,7 @@ class Frame(FrameModel):
 
         if is_valid:
             msg = "Registering a new Frame device succeed."
-            self.insert(ses, json_data)
+            _, json_data = insert_new_data(ses, FrameModel, json_data)
             self.set_msg(msg)
 
         self.set_resp_data(json_data)

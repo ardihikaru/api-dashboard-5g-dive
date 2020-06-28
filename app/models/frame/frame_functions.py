@@ -1,11 +1,53 @@
-from app import app, rc
+from app import app, rc, local_settings
 from sqlalchemy.orm.exc import NoResultFound
 from app.addons.utils import sqlresp_to_dict
+from app.addons.cryptography.fernet import encrypt
 
 
-def get_all_frames(ses, frame_model):
+def insert_new_data(ses, data_model, new_data):
+    new_data["identifier"] = encrypt(new_data["frame_name"])
+    ses.add(data_model(
+                frame_id=new_data["frame_id"],
+                drone_id=new_data["drone_id"],
+                node_id=new_data["node_id"],
+                frame_name=new_data["frame_name"],
+                identifier=new_data["identifier"]
+            )
+    )
+
+    _, inserted_data = get_data_by_identifier(ses, data_model, new_data["identifier"])
+
+    if len(inserted_data) > 0:
+        return True, inserted_data
+    else:
+        return False, None
+
+
+def get_data_by_identifier(ses, data_model, identifier):
     try:
-        data = ses.query(frame_model).all()
+        data = ses.query(data_model).filter_by(identifier=identifier).one()
+    except NoResultFound:
+        return False, None
+    dict_user = data.to_dict()
+
+    if len(dict_user) > 0:
+        return True, dict_user
+    else:
+        return False, None
+
+
+def get_all_frames(ses, frame_model, args=None):
+    try:
+        if args is not None:
+            if len(args["range"]) == 0:
+                args["range"] = [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]]
+        else:
+            args = {
+                "filter": {},
+                "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
+                "sort": []
+            }
+        data = ses.query(frame_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
         return False, None
     data_dict = sqlresp_to_dict(data)

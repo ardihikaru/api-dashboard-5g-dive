@@ -1,5 +1,5 @@
 from app import Base
-from sqlalchemy import text, Column, Integer, TIMESTAMP, Float
+from sqlalchemy import text, Column, Integer, TIMESTAMP, Float, String
 
 
 class GpuRamModel(Base):
@@ -7,6 +7,7 @@ class GpuRamModel(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     util_gb = Column(Float(5))
     util_percent = Column(Float(5))
+    identifier = Column(String(150))
     timestamp = Column(TIMESTAMP, server_default=text('(now())'))
 
     def to_dict(self):
@@ -17,12 +18,4 @@ class GpuRamModel(Base):
             'timestamp': self.timestamp
         }
         return user_info
-
-    def insert(self, ses, data):
-        ses.add(
-            GpuRamModel(
-                util_gb=data["util_gb"],
-                util_percent=data["util_percent"]
-            )
-        )
 
