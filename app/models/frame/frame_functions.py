@@ -5,7 +5,6 @@ from app.addons.cryptography.fernet import encrypt
 
 
 def insert_new_data(ses, data_model, new_data):
-    # new_data["identifier"] = encrypt(new_data["frame_name"])
     identifier_str = new_data["frame_id"] + new_data["drone_id"] + new_data["node_id"]
     new_data["identifier"] = encrypt(identifier_str)
     ses.add(data_model(
@@ -39,6 +38,8 @@ def get_data_by_identifier(ses, data_model, identifier):
 
 
 def get_all_frames(ses, frame_model, args=None):
+    no_filter = True
+    data = None
     try:
         if args is not None:
             if len(args["range"]) == 0:
@@ -49,7 +50,23 @@ def get_all_frames(ses, frame_model, args=None):
                 "range": [local_settings["pagination"]["offset"], local_settings["pagination"]["limit"]],
                 "sort": []
             }
-        data = ses.query(frame_model).offset(args["range"][0]).limit(args["range"][1]).all()
+
+        if len(args["filter"]) > 0:
+            if "droneId" in args["filter"] and "nodeId" in args["filter"]:
+                drone_id = args["filter"]["droneId"]
+                node_id = args["filter"]["nodeId"]
+                data = ses.query(frame_model).filter_by(drone_id=drone_id, node_id=node_id).all()
+                no_filter = False
+            elif "nodeId" in args["filter"]:
+                node_id = args["filter"]["nodeId"]
+                data = ses.query(frame_model).filter_by(node_id=node_id).all()
+                no_filter = False
+            elif "droneId" in args["filter"]:
+                drone_id = args["filter"]["droneId"]
+                data = ses.query(frame_model).filter_by(drone_id=drone_id).all()
+                no_filter = False
+        if no_filter:
+            data = ses.query(frame_model).offset(args["range"][0]).limit(args["range"][1]).all()
     except NoResultFound:
         return False, None
     data_dict = sqlresp_to_dict(data)

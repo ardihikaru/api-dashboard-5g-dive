@@ -1,3 +1,9 @@
+## 1.2.1 (June 29, 2020)
+  - bug fixed
+  - Merge branch 'release-1.2'
+  - Merge branch 'release-1.1'
+  - Merge branch 'release-1.0'
+
 ## 1.2.0 (June 29, 2020)
   - Merge branch 'feature/api/edit-feature' into develop
   - added API: Delete nodes by ID
