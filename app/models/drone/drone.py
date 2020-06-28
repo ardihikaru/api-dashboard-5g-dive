@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .drone_model import DroneModel
 from .drone_functions import get_all_drones, get_drone_by_drone_id, del_drone_by_drone_id, del_all_drones, \
-    insert_new_data
+    insert_new_data, upd_data_by_id, get_data_by_uid, del_data_by_id
 import simplejson as json
 
 
@@ -41,6 +41,7 @@ class Drone(DroneModel):
 
     def trx_register(self, ses, json_data):
         is_valid, msg = self.__validate_register_data(ses, json_data)
+
         self.set_resp_status(is_valid)
         self.set_msg(msg)
 
@@ -56,7 +57,7 @@ class Drone(DroneModel):
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
     def trx_get_drones(self, ses, get_args=None):
-        is_valid, drones = get_all_drones(ses, Drone)
+        is_valid, drones = get_all_drones(ses, Drone, get_args)
         self.set_resp_status(is_valid)
         self.set_msg("Fetching data failed.")
         if is_valid:
@@ -106,8 +107,8 @@ class Drone(DroneModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_drone_id(var, drone_id))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_del_all_data(self, ses):
-        is_valid, drone_data, msg = del_all_drones(ses, Drone)
+    def trx_del_all_data(self, ses, get_args=None):
+        is_valid, drone_data, msg = del_all_drones(ses, Drone, get_args)
         if drone_data is None:
             is_valid = False
             msg = "drone not found"
@@ -118,7 +119,46 @@ class Drone(DroneModel):
 
         self.set_resp_data(drone_data)
 
-    def delete_all_drones(self):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
+    def delete_all_drones(self, get_args=None):
+        get_args = self.__extract_get_args(get_args)
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var, get_args))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
+    def trx_upd_data_by_id(self, ses, uid, json_data):
+        is_valid, data, msg = upd_data_by_id(ses, Drone, uid, new_data=json_data)
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Updating data success.")
+
+        self.set_resp_data(data)
+
+    def update_data_by_id(self, uid, json_data):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_upd_data_by_id(var, uid, json_data))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_get_data_by_uid(self, ses, uid):
+        is_valid, drone_data = get_data_by_uid(ses, Drone, uid)
+        self.set_resp_status(is_valid)
+        self.set_msg("Fetching data failed.")
+        if is_valid:
+            self.set_msg("Collecting data success.")
+
+        self.set_resp_data(drone_data)
+
+    def get_data_by_id(self, uid):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_uid(var, uid))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_del_data_by_id(self, ses, uid):
+        is_valid, drone_data, msg = del_data_by_id(ses, Drone, uid)
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Deleting data success.")
+
+        self.set_resp_data(drone_data)
+
+    def delete_data_by_id(self, uid):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_id(var, uid))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)

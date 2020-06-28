@@ -3,7 +3,8 @@ from app.addons.utils import json_load_str, get_json_template
 from sqlalchemy.orm import sessionmaker
 from cockroachdb.sqlalchemy import run_transaction
 from .node_model import NodeModel
-from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes, insert_new_data
+from .node_functions import get_all_nodes, get_node_by_node_id, del_node_by_node_id, del_all_nodes, insert_new_data, \
+    upd_data_by_id, get_data_by_uid, del_data_by_id
 import simplejson as json
 
 
@@ -105,8 +106,8 @@ class Node(NodeModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_node_id(var, node_id))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_del_all_data(self, ses):
-        is_valid, frame_data, msg = del_all_nodes(ses, Node)
+    def trx_del_all_data(self, ses, get_args=None):
+        is_valid, frame_data, msg = del_all_nodes(ses, Node, get_args)
         if frame_data is None:
             is_valid = False
             msg = "node not found"
@@ -117,6 +118,47 @@ class Node(NodeModel):
 
         self.set_resp_data(frame_data)
 
-    def delete_all_nodes(self):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
+    def delete_all_nodes(self, get_args):
+        get_args = self.__extract_get_args(get_args)
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var, get_args))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_upd_data_by_id(self, ses, uid, json_data):
+        is_valid, data, msg = upd_data_by_id(ses, Node, uid, new_data=json_data)
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Updating data success.")
+
+        self.set_resp_data(data)
+
+    def update_data_by_id(self, uid, json_data):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_upd_data_by_id(var, uid, json_data))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_get_data_by_uid(self, ses, uid):
+        is_valid, data = get_data_by_uid(ses, Node, uid)
+        self.set_resp_status(is_valid)
+        self.set_msg("Fetching data failed.")
+        if is_valid:
+            self.set_msg("Collecting data success.")
+
+        self.set_resp_data(data)
+
+    def get_data_by_id(self, uid):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_get_data_by_uid(var, uid))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+
+    def trx_del_data_by_id(self, ses, uid):
+        is_valid, drone_data, msg = del_data_by_id(ses, Node, uid)
+        self.set_resp_status(is_valid)
+        self.set_msg(msg)
+        if is_valid:
+            self.set_msg("Deleting data success.")
+
+        self.set_resp_data(drone_data)
+
+    def delete_data_by_id(self, uid):
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_id(var, uid))
+        return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
+

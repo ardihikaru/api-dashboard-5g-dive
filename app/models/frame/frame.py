@@ -7,8 +7,8 @@ from ..drone.drone_model import DroneModel
 from ..node.node_model import NodeModel
 from .frame_functions import get_all_frames, get_frame_by_frame_name, del_frame_by_frame_name, del_all_frames, \
     insert_new_data
-from ..drone.drone_functions import get_drone_by_drone_id
-from ..node.node_functions import get_node_by_node_id
+from ..drone.drone_functions import get_drone_by_drone_id, get_data_by_uid as get_drone_by_uid
+from ..node.node_functions import get_node_by_node_id, get_data_by_uid as get_node_by_uid
 import simplejson as json
 
 
@@ -29,15 +29,22 @@ class Frame(FrameModel):
         self.msg = msg
 
     def __validate_register_data(self, ses, json_data):
+        print(" --- @ __validate_register_data ...")
         is_input_valid = True
         if "frame_id" not in json_data:
             return False, "Frame ID should not be EMPTY."
 
         if "drone_id" not in json_data:
-            return False, "Drone ID should not be EMPTY."
+            if "droneId" not in json_data:
+                return False, "Drone ID should not be EMPTY."
+            else:
+                json_data["drone_id"] = json_data["droneId"]
 
         if "node_id" not in json_data:
-            return False, "Node ID should not be EMPTY."
+            if "nodeId" not in json_data:
+                return False, "Node ID should not be EMPTY."
+            else:
+                json_data["node_id"] = json_data["nodeId"]
 
         if "frame_name" not in json_data:
             return False, "Frame Name should not be EMPTY."
@@ -47,18 +54,27 @@ class Frame(FrameModel):
             if is_fid_exist:
                 return False, "Frame Name `%s` exist." % json_data["frame_name"]
 
-            is_did_exist, _ = get_drone_by_drone_id(ses, DroneModel, json_data["drone_id"])
-            if not is_did_exist:
-                return False, "Unable to find Drone ID `%s`." % json_data["drone_id"]
+            if "droneId" in json_data:
+                is_did_exist, _ = get_drone_by_uid(ses, DroneModel, json_data["drone_id"])
+                if not is_did_exist:
+                    return False, "Unable to find Drone ID `%s`." % json_data["drone_id"]
 
-            is_nid_exist, _ = get_node_by_node_id(ses, NodeModel, json_data["node_id"])
-            if not is_nid_exist:
-                return False, "Unable to find Node ID `%s`." % json_data["node_id"]
+                is_nid_exist, _ = get_node_by_uid(ses, NodeModel, json_data["node_id"])
+                if not is_nid_exist:
+                    return False, "Unable to find Node ID `%s`." % json_data["node_id"]
+            else:
+                is_did_exist, _ = get_drone_by_drone_id(ses, DroneModel, json_data["drone_id"])
+                if not is_did_exist:
+                    return False, "Unable to find Drone ID `%s`." % json_data["drone_id"]
 
-        return True, None
+                is_nid_exist, _ = get_node_by_node_id(ses, NodeModel, json_data["node_id"])
+                if not is_nid_exist:
+                    return False, "Unable to find Node ID `%s`." % json_data["node_id"]
+
+        return True, None, json_data
 
     def trx_register(self, ses, json_data):
-        is_valid, msg = self.__validate_register_data(ses, json_data)
+        is_valid, msg, json_data = self.__validate_register_data(ses, json_data)
         self.set_resp_status(is_valid)
         self.set_msg(msg)
 
@@ -124,8 +140,8 @@ class Frame(FrameModel):
         run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_data_by_frame_name(var, frame_name))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 
-    def trx_del_all_data(self, ses):
-        is_valid, frame_data, msg = del_all_frames(ses, Frame)
+    def trx_del_all_data(self, ses, get_args=None):
+        is_valid, frame_data, msg = del_all_frames(ses, Frame, get_args)
         if frame_data is None:
             is_valid = False
             msg = "frame not found"
@@ -136,7 +152,8 @@ class Frame(FrameModel):
 
         self.set_resp_data(frame_data)
 
-    def delete_all_frames(self):
-        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var))
+    def delete_all_frames(self, get_args=None):
+        get_args = self.__extract_get_args(get_args)
+        run_transaction(sessionmaker(bind=engine), lambda var: self.trx_del_all_data(var, get_args))
         return get_json_template(response=self.resp_status, results=self.resp_data, total=-1, message=self.msg)
 

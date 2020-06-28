@@ -6,12 +6,14 @@ import simplejson as json
 from sqlalchemy import inspect
 
 
-def masked_json_template(resp, code, no_checking=False):
+def masked_json_template(resp, code, no_checking=False, resp_code=403):
     try:
         if no_checking:
             return resp, 200
         elif resp["response"]:
             return resp, 200
+        elif not resp["response"]:
+            return resp, resp_code
         else:
             return resp, code
     except:

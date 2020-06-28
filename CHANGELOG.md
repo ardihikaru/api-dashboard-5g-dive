@@ -1,3 +1,19 @@
+## 1.2.0 (June 29, 2020)
+  - Merge branch 'feature/api/edit-feature' into develop
+  - added API: Delete nodes by ID
+  - added API: delete selected frames ID
+  - delete several drones (by ID)
+  - bug fixed
+  - added: delete drone by id
+  - bug fixed
+  - bug fixed: Update by ID and by Node ID
+  - bug fixed: get drone by ID and by Drone ID
+  - bug fixed
+  - bug fixed: edit drones and nodes
+  - bug fixed: response API
+  - added edit by uid
+  - Merge branch 'release-1.1' into develop
+
 ## 1.1.0 (June 28, 2020)
   - Merge branch 'feature/api/limit-offset' into develop
   - changed logic to insert new data
